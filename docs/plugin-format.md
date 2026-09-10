@@ -14,8 +14,10 @@ this document and that script are the bug.
 
 ## The layout
 
+**A category is a directory, and a plugin lives one level inside it.**
+
 ```
-plugins/<id>/
+plugins/<category>/<id>/
   kiso-plugin.json      the manifest — required, at the root of the directory
   icon.svg              optional, a plain file name the manifest points at
   README.md             for people reading this repository, not read by the App
@@ -23,9 +25,36 @@ plugins/<id>/
     <skill>/SKILL.md    one directory per skill the manifest names
 ```
 
-**The directory name must equal the manifest's `id`.** The App's index skips a
-directory whose manifest names a different id, and it does so silently — a
-plugin can be perfect and invisible. The validator makes this an error.
+For example, `plugins/video/kiso-film/kiso-plugin.json`.
+
+**A category exists because a plugin is in it.** There is no list of
+categories anywhere and there should not be one: a second place to say what
+the directories are is a second thing to keep in step. So a category
+directory with no plugin in it is an error — it would put a heading in the
+index that a reader can click into and find nothing.
+
+**Two names have to agree with the path**, and both for the same reason: the
+path is the claim a reader makes when they browse this repository, and the
+manifest is the fact the App reads.
+
+| the path says | the manifest must say |
+|---|---|
+| `plugins/<category>/` | `"category": "<category>"` |
+| `plugins/<category>/<id>/` | `"id": "<id>"` |
+
+The App enforces neither. It skips a directory whose manifest names a
+different id, silently — a plugin can be perfect and invisible — and it
+ignores `category` entirely. `scripts/validate.mjs` makes both an error.
+
+**A plugin at `plugins/<id>/`, with no category above it, is refused.** That
+was the layout until 2026-09-10. Copied by hand such a plugin still installs;
+what it does not do is appear anywhere a person browsing this repository would
+look, and the validator reads the same directory the index is built from.
+
+**An empty collection is fine and says so.** `npm run check` on a repository
+with no plugins in it prints *no plugins yet; the collection is empty* and
+exits 0. What it refuses is a category with nothing in it — a glob finding
+nothing where something is.
 
 ## The manifest, field by field
 
@@ -85,6 +114,23 @@ piece of software from the **kiso desktop app**, and it is extended by
 `kiso-*-ext` npm packages, not by anything in this folder. A reader who finds
 a directory with skills in it should be able to tell in one line which of the
 two it belongs to. The only accepted value is `"kiso-app"`.
+
+### `category` — **required by this repository**
+
+```json
+"category": "video"
+```
+
+Lower-case letters, digits and hyphens, starting with a letter or digit — it
+is a directory name and a path segment, so it is shaped like an `id`.
+
+**It must equal the name of the directory above the plugin's own.** See *The
+layout* above for why both names are checked against the path.
+
+Like `host`, it means nothing to the App, which ignores fields it does not
+know. It is here for people reading a directory listing, and for the index in
+the README, which is built from these directories rather than from a list
+somebody maintains.
 
 ### `skills` — required
 
@@ -279,8 +325,8 @@ input until its manifest parses.
 ## Installing from this repository
 
 **A plugin here installs by copying its directory.** Clone the repository and
-point the App at `plugins/<id>` — Settings → Integrations → Plugins → Add,
-from a folder.
+point the App at `plugins/<category>/<id>` — Settings → Integrations →
+Plugins → Add, from a folder.
 
 **Installing this repository by its URL does not work, and that is a
 limitation of the App rather than of the layout here.** The App's git install
@@ -290,7 +336,7 @@ plugins, and a root manifest would have to be one of them.
 
 Closing that gap needs a change in the App, one of:
 
-- **a sub-path on the URL** — `https://…/kiso-plugins#plugins/short-drama`,
+- **a sub-path on the URL** — `https://…/kiso-plugins#plugins/video/kiso-film`,
   resolved inside the validated temporary clone, or
 - **a root index the App reads** — a file at the repository root listing the
   directories that are plugins, so one URL offers a choice.
