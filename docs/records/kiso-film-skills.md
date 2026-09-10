@@ -188,3 +188,33 @@ tell the agent to write, and is in §2.
   yet. The cinematography reference lives inside the plugin, which is where an
   installed copy has to end up anyway.
 - **Episode splitting, lip sync, music and narration.** Outside the concept.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** Read from the collection's main checkout at e22fac3:
+the manifest as briefed (id, `video`, host, seven skills, the three commands
+with the tool declared ahead of its lane, no secrets yet); the writing chain
+`brief → screenplay → characters → shot-list → shot-prompts`, the `drama`
+genre skill and `film-study`, with one cinematography reference the shot
+skills cite by its exact words; three offers on the writing chain, each
+`from` and `makes` inside the host's renderer words. I read `brief`,
+`shot-list`, `drama` and the reference whole: they are ours — the stages are
+reelfo's map, the words are not — and they are written the way this App's
+skills are written: plan the graph first, ask once and together, mechanical
+facts, `from` lists what was copied and nothing merely opened, withdraw
+rather than leave an outline. The two things read out of the host before
+writing — the artifact tools' parameters and the table renderer's accepted
+shapes — are why `shots.json` is a flat array and the skill says so with the
+reason; a skill that guesses at its host is the wrong kind of skill. The
+privacy sweep is clean on my own grep of the branch. The executor's counts:
+`check` exit 0 on a fresh clone, 37 of 37 fixtures unchanged because no rule
+moved; the collection's guard named all seven missing skill files on the
+first real plugin, which is the guard's first real bite. Said plainly and
+rightly: **no skill was executed** — this lane proves the plugin installs,
+not that it makes good films; that proof is the graph lane's, on the App,
+with a model and a person. Rulings on §4: (1) the offers check is the next
+lane, `kiso-plugins-offers-check`, ruled at the freeze; (2) two offers on
+every markdown artifact is ADR-011's own choice and stays, written down as
+it is; (3) and (4) as the executor has them. The `.gitkeep` goes here, as
+the layout record said it would. Next: `kiso-plugins-offers-check`, then
+`kiso-film-tool`.
