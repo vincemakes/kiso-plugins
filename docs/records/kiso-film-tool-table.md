@@ -207,3 +207,29 @@ of that is a fact about a third-party model and none of it came over.
   A committed build is a second copy that can disagree with its source.
 - **A lockfile at the root.** The root still has no dependencies. The one
   lockfile is the tool's, and CI installs from it.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** Surveyed from the main checkout at 5890c2a: the
+package `@vincemakes/kiso-film` with a `bin`, ESM, TypeScript as its only
+dependency and no publish step anywhere; `models.json` with 22 entries — 18
+video, 4 image, no language model, as ruled — every one `verified: false`,
+two providers named (`fal` 21, `byteplus` 1), five models that take a motion
+reference for the spike to run on; the four commands that touch no network;
+the plugin's manifest naming the two secrets; `check` grown by the package's
+suite, CI grown by its one `npm ci`, the CJK gate reaching `tools/` and the
+build gitignored with the reason. The zero-network claim is a test over the
+source and the built output, red-proved against a fixture, and the canary
+proves no key is printed by a half that reads only the names — those two
+are the seam's promise made checkable, and they are why this half could be
+reviewed by grep. The schema is the only statement of the table's shape and
+the checker reports any keyword it would ignore; the cross-fade arithmetic
+returns its arguments so a test reads what would run. The executor's
+counts: 47 of 47 in the package, `check` exit 0 on a fresh clone, the
+tarball 16 KB of built output and data that installs into a clean prefix
+and runs. Rulings on §4: `verified` flips per entry only, on a real call
+that worked or a person's reading against the provider's documentation; the
+real clip durations come from `ffprobe` in the providers lane. What
+crossed from the reference is facts about third-party models in a schema
+written here, and the sweep is clean. Next: `kiso-film-tool-providers`,
+immediately.
