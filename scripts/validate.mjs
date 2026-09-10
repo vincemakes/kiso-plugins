@@ -2,10 +2,15 @@
 /**
  * The collection's validator.
  *
- * Every plugin in `plugins/` is read by the SAME RULES the kiso desktop app
- * applies at install time, so a plugin that is green here installs there.
- * Those rules live in the App's `src/main/tools/plugins.ts` (the manifest) and
- * `src/main/tools/skills.ts` (the skill files behind it).
+ * Every plugin at `plugins/<category>/<id>/` is read by the SAME RULES the
+ * kiso desktop app applies at install time, so a plugin that is green here
+ * installs there. Those rules live in the App's `src/main/tools/plugins.ts`
+ * (the manifest) and `src/main/tools/skills.ts` (the skill files behind it).
+ *
+ * THE LAYOUT ITSELF IS THIS COLLECTION'S, and the App knows nothing about it:
+ * the category, the depth, and the two names that have to agree with the path
+ * are checked here because nothing else checks them anywhere. `scanCollection`
+ * below holds those three; `validatePlugin` holds the manifest.
  *
  * THE CHECKS ARE PORTED, NOT IMPORTED, and that is deliberate: importing the
  * App would make this public repository depend on a closed-source one, and
@@ -23,7 +28,7 @@
  * Every such case is reported as an error and labelled STRICTER.
  *
  * Usage:
- *   node scripts/validate.mjs              validate plugins/ (exit 0 = green)
+ *   node scripts/validate.mjs              validate the collection (0 = green)
  *   node scripts/validate.mjs --selftest   prove each rejection actually fires
  */
 import { closeSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
