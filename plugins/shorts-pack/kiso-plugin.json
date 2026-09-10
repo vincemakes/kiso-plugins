@@ -1,0 +1,21 @@
+{
+  "id": "shorts-pack",
+  "name": "Shorts pack",
+  "version": "1.0.0",
+  "description": "Cut a long recording into vertical shorts with whisper and ffmpeg.",
+  "host": "kiso-app",
+  "skills": [
+    "transcribe",
+    "find-moments",
+    "cut-clips"
+  ],
+  "commands": [
+    "mlx_whisper",
+    "whisper",
+    "whisper-cli",
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "secrets": [],
+  "icon": "icon.svg"
+}

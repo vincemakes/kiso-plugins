@@ -1,0 +1,19 @@
+{
+  "id": "short-drama",
+  "name": "Short drama",
+  "version": "1.0.0",
+  "description": "Four stages from a one-line brief: script, storyboard, assets, cut.",
+  "host": "kiso-app",
+  "skills": [
+    "script",
+    "storyboard",
+    "assets",
+    "cut"
+  ],
+  "commands": [
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "secrets": [],
+  "icon": "icon.svg"
+}
