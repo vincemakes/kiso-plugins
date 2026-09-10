@@ -1,0 +1,14 @@
+{
+  "name": "kiso-plugins",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Plugins for the kiso desktop app.",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "validate:selftest": "node scripts/validate.mjs --selftest",
+    "gate:cjk": "node scripts/gates/cjk-gate.mjs",
+    "check": "npm run validate && npm run validate:selftest && npm run gate:cjk"
+  }
+}
