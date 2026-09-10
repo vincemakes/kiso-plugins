@@ -127,3 +127,20 @@ the first offers lane and are unchanged since. Nothing new was read from it.
 - **Anything outside `scripts/validate.mjs`.** The one real plugin's three
   offers were already correct, so the only evidence in this lane is fixtures
   and probes — as it was in the first.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** One commit, two files, surveyed from the main
+checkout at a6ddabf: the four rules as ruled — the declared-versus-parsed
+count, an offer with no `says`, an offer with no `from`, more offers than
+the App reads — each with its fixture, the twelve-offers boundary asserted
+green so the cap cannot drift to a refusal of a legal skill, and the parser
+keeping what it used to drop with the reason so the rules can see it while
+the plugin's note counts live offers alone. The executor's counts: 48 of 48
+fixtures, 71 tool tests, `check` exit 0 on a fresh clone; four red-proofs
+with the verdict line read before the failures. The result worth keeping is
+that two probes failed with the count's message rather than the removed
+rule's, because a single malformed offer parses to nothing — which the
+probes could tell apart only because every fixture asserts its own message.
+The executor stops here, as asked; the graph lane waits on the App's
+installer and the owner's first real call.
