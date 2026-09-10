@@ -148,7 +148,7 @@ those three manifests — would put the claim under an existing proof that
 already asserts both packs install and their skills reach the index. That is a
 change to the app and therefore the leader's; **I did not make it.**
 
-**3. MIT.** *Recommendation: MIT, as instructed.* It matches the runtime
+**3. MIT.** *Recommendation: MIT, as instructed — confirmed by the owner on 2026-09-10; the `LICENSE` file stands.* It matches the runtime
 (`@vincemakes/kiso-core` is MIT) and a person copying a recipe out of a
 `SKILL.md` into their own workflow should not have to think about it. Noting
 only that the contents are almost entirely prose rather than code, and MIT
