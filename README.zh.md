@@ -13,15 +13,16 @@
 一个文件夹，里面有一份清单和若干技能。仅此而已。
 
 ```
-plugins/short-drama/
+plugins/video/kiso-film/
   kiso-plugin.json
   icon.svg
   README.md
-  skills/script/SKILL.md
-  skills/storyboard/SKILL.md
-  skills/assets/SKILL.md
-  skills/cut/SKILL.md
+  skills/<skill>/SKILL.md
 ```
+
+**分类就是一层目录**，插件放在分类里面一层。分类之所以存在，是因为里面有插件——
+仓库里没有任何一份分类清单，下面的索引是从目录本身读出来的，而不是从某个需要有人
+记得去更新的列表。
 
 **插件是声明式的。它不携带代码，里面的任何东西都不会在应用进程里运行。** 技能是
 写给 agent 读的操作说明；清单只按名字声明这些说明会调用哪些命令行工具、需要哪些
@@ -32,22 +33,15 @@ plugins/short-drama/
 
 ## 现有插件
 
-| id | 做什么 | 需要 |
-|---|---|---|
-| [`fix-and-prove`](plugins/fix-and-prove) | 在代码仓库里修一处问题，并把证据留在旁边：diff、测试记录、截图 | `git`、`npm` |
-| [`short-drama`](plugins/short-drama) | 从一句话的设定走完四步：剧本、分镜、素材、成片 | `ffmpeg`、`ffprobe` |
-| [`shorts-pack`](plugins/shorts-pack) | 把一段长录像切成竖屏短视频 | 某个 `whisper`、`ffmpeg`、`ffprobe` |
+**暂时没有。** 这个合集是开放的，第一个已经在路上：`plugins/video/kiso-film`。
 
-这三个是官方插件，在此维护。也欢迎社区插件，见
-[CONTRIBUTING.md](CONTRIBUTING.md)（英文）。
-
-**本仓库是它们的唯一来源。** 桌面应用在 `packs/` 下保留一份自用的副本供其证明
-套件使用；那份副本跟随这里。
+2026-09-10 之前，这里放着三个从 kiso 桌面应用 `packs/` 复制过来的插件。它们已经
+交还给应用自己了；留下来的是格式、校验器和这套目录结构。
 
 ## 安装
 
 克隆本仓库，然后在应用里：**Settings → Integrations → Plugins → Add**，选择从
-文件夹安装，指向 `plugins/<id>`。
+文件夹安装，指向 `plugins/<category>/<id>`。
 
 目前还不能用本仓库的 git 地址直接安装：应用的 git 安装会在克隆的根目录找清单，
 而一个合集的根目录没有清单。[docs/plugin-format.md](docs/plugin-format.md) 里写了
@@ -64,6 +58,10 @@ npm run check
 
 `check` 会用应用自己的规则校验这里的每个插件，再用一批故意写坏的样本证明这些检查
 确实会触发，并检查仓库是否用英文书写。在这里通过的插件，在那边就能装上。
+
+合集为空时，它会用一行说明这一点并以 0 退出。它拒绝的是：空的分类目录、不在
+`plugins/<category>/<id>/` 位置上的插件，以及 `id` 或 `category` 与所在路径
+对不上的清单。
 
 ## 许可
 

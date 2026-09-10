@@ -2,10 +2,15 @@
 /**
  * The collection's validator.
  *
- * Every plugin in `plugins/` is read by the SAME RULES the kiso desktop app
- * applies at install time, so a plugin that is green here installs there.
- * Those rules live in the App's `src/main/tools/plugins.ts` (the manifest) and
- * `src/main/tools/skills.ts` (the skill files behind it).
+ * Every plugin at `plugins/<category>/<id>/` is read by the SAME RULES the
+ * kiso desktop app applies at install time, so a plugin that is green here
+ * installs there. Those rules live in the App's `src/main/tools/plugins.ts`
+ * (the manifest) and `src/main/tools/skills.ts` (the skill files behind it).
+ *
+ * THE LAYOUT ITSELF IS THIS COLLECTION'S, and the App knows nothing about it:
+ * the category, the depth, and the two names that have to agree with the path
+ * are checked here because nothing else checks them anywhere. `scanCollection`
+ * below holds those three; `validatePlugin` holds the manifest.
  *
  * THE CHECKS ARE PORTED, NOT IMPORTED, and that is deliberate: importing the
  * App would make this public repository depend on a closed-source one, and
@@ -23,7 +28,7 @@
  * Every such case is reported as an error and labelled STRICTER.
  *
  * Usage:
- *   node scripts/validate.mjs              validate plugins/ (exit 0 = green)
+ *   node scripts/validate.mjs              validate the collection (0 = green)
  *   node scripts/validate.mjs --selftest   prove each rejection actually fires
  */
 import { closeSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
@@ -39,6 +44,9 @@ export const MANIFEST = 'kiso-plugin.json'
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/
 /** projects.ts `isExecutableName` — a name, never a path, never a command line. */
 const EXECUTABLE_RE = /^[A-Za-z0-9][A-Za-z0-9._+-]*$/
+/** A category is a directory name and a path segment, so it is shaped like an
+ *  id. This collection's rule, not the App's. */
+const CATEGORY_RE = /^[a-z0-9][a-z0-9-]*$/
 /** plugins.ts: a secret is a NAME shaped like an environment variable. */
 const SECRET_RE = /^[A-Z][A-Z0-9_]*$/
 /** plugins.ts `parseMcpServers`: env keys are C identifiers. */
@@ -116,7 +124,7 @@ function readHead(path) {
  * Each problem is a sentence an author can act on, in the App's own words
  * wherever the App has words for it.
  */
-export function validatePlugin(dir, dirName) {
+export function validatePlugin(dir, dirName, categoryName) {
   const errors = []
   const warnings = []
   const bad = (m) => errors.push(m)
@@ -160,6 +168,23 @@ export function validatePlugin(dir, dirName) {
   // The reserved field. Absent is an error here and nothing at all to the App.
   if (m['host'] === undefined) bad(`"host" is required in this collection — write "host": ${JSON.stringify(HOST)} (docs/plugin-format.md)`)
   else if (m['host'] !== HOST) bad(`"host" must be exactly ${JSON.stringify(HOST)} (got ${JSON.stringify(m['host'])}) — this repository holds plugins for the kiso desktop app, not extensions for the kiso runtime`)
+
+  /*
+   * THE CATEGORY IS THE PARENT DIRECTORY, AND THE MANIFEST HAS TO AGREE.
+   *
+   * Same rule as `id` one level up, for the same reason: the PATH is the
+   * claim a reader makes when they browse the repository, and the MANIFEST is
+   * the fact the App reads. Two ways of saying one thing drift, and the one
+   * that drifts silently is the one nothing checks. So they are checked
+   * against each other.
+   *
+   * The App ignores `category` as it ignores `host` — it is this collection's
+   * field, for people reading a directory listing.
+   */
+  const category = m['category']
+  if (category === undefined) bad(`"category" is required in this collection — a plugin lives at plugins/<category>/<id>/ (docs/plugin-format.md)`)
+  else if (typeof category !== 'string' || !CATEGORY_RE.test(category)) bad(`"category" must match ${CATEGORY_RE.source} (got ${JSON.stringify(category)})`)
+  else if (categoryName !== undefined && category !== categoryName) bad(`"category" is ${JSON.stringify(category)} but the directory above this one is ${JSON.stringify(categoryName)} — the path is the claim and the manifest is the fact, and they have to agree`)
 
   const skillsRaw = m['skills']
   let skills = []
@@ -290,37 +315,102 @@ export function validatePlugin(dir, dirName) {
   return { errors, warnings }
 }
 
-function run() {
-  if (!existsSync(PLUGINS) || !statSync(PLUGINS).isDirectory()) {
-    console.error('validate: RED — there is no plugins/ directory')
-    process.exit(1)
+/**
+ * THE LAYOUT: `plugins/<category>/<id>/`.
+ *
+ * A category is a directory. It exists because a plugin is in it — there is no
+ * list of categories anywhere and there should not be one, because a second
+ * place to say what the directories are is a second thing to keep in step.
+ *
+ * Separated from `run` so the self-test can walk a tree the way the runner
+ * does. The three layout rules are as easy to get wrong as any manifest field
+ * and just as invisible when they are: a plugin at the wrong depth is not
+ * refused by anything the App does, it is simply never found.
+ *
+ * Returns every problem it found and every plugin it will validate, so the
+ * caller decides how to report and the self-test can assert on both.
+ */
+export function scanCollection(root) {
+  const problems = []
+  const plugins = []
+  if (!existsSync(root) || !statSync(root).isDirectory()) {
+    problems.push('there is no plugins/ directory')
+    return { problems, plugins, empty: false }
   }
-  const dirs = readdirSync(PLUGINS, { withFileTypes: true })
+  const categories = readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
     .sort()
 
-  // A validator with nothing to validate reports success and proves nothing.
-  if (dirs.length === 0) {
-    console.error('validate: RED — plugins/ is empty. A green run over nothing is not a green run.')
+  /*
+   * A PLUGIN AT THE FLAT DEPTH. `plugins/<id>/kiso-plugin.json` was the layout
+   * until 2026-09-10 and is refused now — not because it would fail to
+   * install (copied by hand it installs fine) but because the collection's
+   * index is built by reading the directory, and a plugin outside the shape
+   * is a plugin nobody browsing this repository will find.
+   */
+  for (const c of categories) {
+    if (existsSync(join(root, c, MANIFEST))) {
+      problems.push(`plugins/${c}/${MANIFEST} — a plugin lives at plugins/<category>/<id>/, so this one is one level too high`)
+    }
+  }
+
+  /*
+   * AN EMPTY COLLECTION IS GREEN, AND SAYS SO.
+   *
+   * This refused an empty `plugins/` until 2026-09-10, on the grounds that a
+   * green run over nothing proves nothing. That is true of a glob that finds
+   * nothing WHERE SOMETHING IS, which is the case below — a category with no
+   * plugin in it. It is not true of a collection that is genuinely empty and
+   * says which it is. The guard moved to where it bites.
+   */
+  if (categories.length === 0) return { problems, plugins, empty: true }
+
+  for (const c of categories) {
+    const ids = readdirSync(join(root, c), { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+      .sort()
+    // A category exists because a plugin is in it. An empty one is a directory
+    // somebody made and did not fill, or a plugin somebody removed and left
+    // the shelf behind — and either way the index would list a category a
+    // reader can click into and find nothing.
+    if (ids.length === 0) problems.push(`plugins/${c}/ has no plugin in it — a category exists because a plugin is in it`)
+    for (const id of ids) plugins.push({ category: c, id, dir: join(root, c, id) })
+  }
+  return { problems, plugins, empty: false }
+}
+
+function run() {
+  const { problems, plugins, empty } = scanCollection(PLUGINS)
+
+  if (problems.length > 0) {
+    console.error('validate: RED — the collection\'s layout')
+    for (const x of problems) console.error(`        ${x}`)
     process.exit(1)
+  }
+  if (empty) {
+    console.log('validate: green — no plugins yet; the collection is empty')
+    process.exit(0)
   }
 
   let failed = 0
-  for (const d of dirs) {
-    const { errors, warnings } = validatePlugin(join(PLUGINS, d), d)
+  for (const { category, id, dir } of plugins) {
+    const { errors, warnings } = validatePlugin(dir, id, category)
+    const where = `${category}/${id}`
     if (errors.length === 0) {
-      console.log(`  OK    ${d}`)
+      console.log(`  OK    ${where}`)
       for (const w of warnings) console.log(`        note: ${w}`)
     } else {
       failed++
-      console.error(`  FAIL  ${d}`)
+      console.error(`  FAIL  ${where}`)
       for (const e of errors) console.error(`        ${e}`)
     }
   }
-  const n = dirs.length
+  const n = plugins.length
+  const cats = new Set(plugins.map((x) => x.category)).size
   if (failed === 0) {
-    console.log(`\nvalidate: green — ${n} plugin${n === 1 ? '' : 's'} read by the App's own rules`)
+    console.log(`\nvalidate: green — ${n} plugin${n === 1 ? '' : 's'} in ${cats} categor${cats === 1 ? 'y' : 'ies'}, read by the App's own rules`)
     process.exit(0)
   }
   console.error(`\nvalidate: RED — ${failed} of ${n} plugin${n === 1 ? '' : 's'} would not install as written`)
@@ -342,7 +432,7 @@ function selftest() {
 
   /** A plugin that is valid in every way, as the starting point each case breaks. */
   const good = () => ({
-    manifest: { id: 'sample', name: 'Sample', version: '1.0.0', description: 'A valid plugin.', host: HOST, skills: ['one'], commands: ['ffmpeg'], secrets: ['SAMPLE_KEY'], icon: 'icon.svg' },
+    manifest: { id: 'sample', name: 'Sample', version: '1.0.0', description: 'A valid plugin.', host: HOST, category: 'video', skills: ['one'], commands: ['ffmpeg'], secrets: ['SAMPLE_KEY'], icon: 'icon.svg' },
     files: { 'icon.svg': '<svg xmlns="http://www.w3.org/2000/svg"/>', 'skills/one/SKILL.md': '---\nname: one\ndescription: Does one thing.\n---\n\n# One\n' }
   })
 
@@ -370,6 +460,9 @@ function selftest() {
     ['no description', (g) => delete g.manifest.description, '"description" is required in this collection'],
     ['no host', (g) => delete g.manifest.host, '"host" is required'],
     ['the wrong host', (g) => (g.manifest.host = 'kiso-runtime'), '"host" must be exactly'],
+    ['no category', (g) => delete g.manifest.category, '"category" is required'],
+    ['a category that is not a path segment', (g) => (g.manifest.category = 'Video Tools'), '"category" must match'],
+    ['a category that is not the parent directory', (g) => (g.manifest.category = 'audio'), 'the directory above this one is'],
     ['skills is not an array', (g) => (g.manifest.skills = 'one'), '"skills" must be an array'],
     ['skills is empty', (g) => (g.manifest.skills = []), '"skills" is empty'],
     ['a skill entry that is a path', (g) => (g.manifest.skills = ['a/b']), 'directory names, not paths'],
@@ -395,7 +488,7 @@ function selftest() {
 
   for (const [label, mutate, expect] of cases) {
     const dir = build(label, mutate)
-    const { errors } = validatePlugin(dir, 'sample')
+    const { errors } = validatePlugin(dir, 'sample', 'video')
     if (expect === null) {
       if (errors.length === 0) pass++
       else failures.push(`${label}: expected green, got — ${errors.join('; ')}`)
@@ -411,12 +504,49 @@ function selftest() {
     const dir = build('symlink', (g) => g)
     try {
       symlinkSync('/etc/hosts', join(dir, 'skills', 'one', 'linked.md'))
-      const { errors } = validatePlugin(dir, 'sample')
+      const { errors } = validatePlugin(dir, 'sample', 'video')
       if (errors.some((e) => e.includes('symbolic link'))) pass++
       else failures.push(`a symbolic link inside the plugin: no error mentioned it (errors: ${errors.length === 0 ? 'NONE — the check did not fire' : errors.join('; ')})`)
     } catch (err) {
       failures.push(`a symbolic link inside the plugin: the fixture could not be built (${err instanceof Error ? err.message : String(err)})`)
     }
+  }
+
+  /*
+   * THE LAYOUT RULES, walked the way the runner walks them.
+   *
+   * These three live in `scanCollection` rather than in a manifest, and they
+   * are the ones a repository gets wrong silently: a plugin at the wrong depth
+   * is not refused by anything, it is simply never found. The empty-collection
+   * case is here for the opposite reason — it is the one that must stay GREEN,
+   * and a rule that must not fire needs a fixture as much as one that must.
+   */
+  const tree = (label, build) => {
+    const root = join(base, `tree-${label}`, 'plugins')
+    mkdirSync(root, { recursive: true })
+    build(root)
+    return scanCollection(root)
+  }
+  const plugin = (at) => {
+    mkdirSync(join(at, 'skills', 'one'), { recursive: true })
+    writeFileSync(join(at, MANIFEST), JSON.stringify(good().manifest, null, 2))
+    writeFileSync(join(at, 'skills', 'one', 'SKILL.md'), '---\nname: one\ndescription: Does one thing.\n---\n')
+  }
+  const layout = [
+    ['a plugin in its category is found', (root) => plugin(join(root, 'video', 'sample')),
+      (r) => r.problems.length === 0 && r.empty === false && r.plugins.length === 1 && r.plugins[0].category === 'video' && r.plugins[0].id === 'sample'],
+    ['an empty collection is GREEN and says which it is', () => {},
+      (r) => r.problems.length === 0 && r.empty === true && r.plugins.length === 0],
+    ['a plugin at the flat depth is refused', (root) => plugin(join(root, 'sample')),
+      (r) => r.problems.some((x) => x.includes('one level too high'))],
+    ['a category with no plugin in it is refused', (root) => mkdirSync(join(root, 'video'), { recursive: true }),
+      (r) => r.problems.some((x) => x.includes('has no plugin in it'))]
+  ]
+  for (const [label, build, holds] of layout) {
+    let r
+    try { r = tree(label.replace(/[^a-z0-9]+/gi, '-'), build) } catch (err) { failures.push(`${label}: the fixture could not be built (${err instanceof Error ? err.message : String(err)})`); continue }
+    if (holds(r)) pass++
+    else failures.push(`${label}: scanCollection returned ${JSON.stringify({ problems: r.problems, empty: r.empty, plugins: r.plugins.map((x) => `${x.category}/${x.id}`) })}`)
   }
 
   rmSync(base, { recursive: true, force: true })

@@ -15,15 +15,17 @@ that teach the desktop app's agent how to do a particular kind of work.
 A folder with a manifest and some skills. Nothing more.
 
 ```
-plugins/short-drama/
+plugins/video/kiso-film/
   kiso-plugin.json
   icon.svg
   README.md
-  skills/script/SKILL.md
-  skills/storyboard/SKILL.md
-  skills/assets/SKILL.md
-  skills/cut/SKILL.md
+  skills/<skill>/SKILL.md
 ```
+
+A **category** is a directory, and a plugin lives one level inside it. A
+category exists because a plugin is in it — there is no list of categories
+anywhere, and the index below is built from the directories rather than from a
+list somebody has to remember to update.
 
 **A plugin is declarative. It ships no code and nothing in it ever runs in the
 app's processes.** A skill is a recipe written for the agent to read; the
@@ -35,22 +37,17 @@ That is the whole trust boundary, and it is small on purpose.
 
 ## The plugins
 
-| id | what it does | needs |
-|---|---|---|
-| [`fix-and-prove`](plugins/fix-and-prove) | Fix something in a repository and leave the proof beside it: the diff, the test run, the screenshot | `git`, `npm` |
-| [`short-drama`](plugins/short-drama) | Four stages from a one-line brief: script, storyboard, assets, cut | `ffmpeg`, `ffprobe` |
-| [`shorts-pack`](plugins/shorts-pack) | Cut a long recording into vertical shorts | a `whisper`, `ffmpeg`, `ffprobe` |
+**None yet.** The collection is open, and the first is on its way:
+`plugins/video/kiso-film`.
 
-These three are official plugins, maintained here. Community plugins are
-welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-**This repository is the source of truth for them.** The desktop app keeps its
-own copy under `packs/` for its proof suite; that copy follows this one.
+Until 2026-09-10 this repository carried three plugins copied from the kiso
+desktop app's own `packs/`. They went back to being the app's alone; what was
+worth keeping was the format, the validator and the shape.
 
 ## Installing one
 
 Clone this repository, then in the app: **Settings → Integrations → Plugins →
-Add**, from a folder, and choose `plugins/<id>`.
+Add**, from a folder, and choose `plugins/<category>/<id>`.
 
 Installing the repository by its git URL does not work yet: the app's git
 install expects a manifest at the root of the clone, and a collection has
@@ -70,6 +67,10 @@ npm run check
 `check` validates every plugin here by the app's own rules, proves those
 checks still fire against fixtures that break them, and holds the repository
 to English. A plugin that is green here installs there.
+
+On an empty collection it says so in one line and exits 0. What it refuses is
+a category with nothing in it, a plugin outside `plugins/<category>/<id>/`, or
+a manifest whose `id` or `category` disagrees with the path it sits on.
 
 ## Licence
 

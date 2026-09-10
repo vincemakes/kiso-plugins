@@ -7,8 +7,8 @@ boundary is what keeps installing one cheap and safe.
 
 ## One directory, one pull request
 
-A pull request touches **one** `plugins/<id>/` directory. Not two, not a
-directory plus a refactor of the validator.
+A pull request touches **one** `plugins/<category>/<id>/` directory. Not two,
+not a directory plus a refactor of the validator.
 
 The reason is review: a plugin is judged on whether its recipes are any good
 and whether its declarations are honest, and both of those are read whole. Two
@@ -24,8 +24,12 @@ Before you open it:
 - [ ] `npm run check` is green. It runs the same manifest rules the app runs,
       proves those rules still fire against fixtures that break them, and
       holds the repository to English.
-- [ ] The directory name equals the manifest's `id`. The app skips a plugin
-      where they differ, silently.
+- [ ] The plugin is at `plugins/<category>/<id>/`. One level higher and
+      nothing finds it; the validator refuses that depth.
+- [ ] The directory name equals the manifest's `id`, and the directory above
+      it equals the manifest's `category`. The path is the claim and the
+      manifest is the fact. The app skips a plugin whose id and directory
+      differ, silently.
 - [ ] `"host": "kiso-app"` is in the manifest.
 - [ ] There is a `description` on the plugin and on **every** skill. A skill
       without one installs and is listed as broken.
@@ -49,10 +53,13 @@ Before you open it:
 Conventional commits, with the plugin id as the scope:
 
 ```
-feat(short-drama): a fifth stage that renders subtitles
-fix(shorts-pack): transcribe stops when no whisper is installed
-docs(fix-and-prove): say which test runners the recipe knows
+feat(kiso-film): a stage that renders subtitles
+fix(kiso-film): the cut stage stops when no ffmpeg is installed
+docs(kiso-film): say which model table the tool reads
 ```
+
+The scope is the plugin's `id`, not its category: a plugin keeps its id if it
+is ever filed somewhere else.
 
 For repository-level changes the scope is the area — `chore(repo)`,
 `docs(format)`, `feat(validate)`.
@@ -70,5 +77,9 @@ everywhere except `README.zh.md`.
 - **Secrets in files.** See above.
 - **A description that does not describe.** It is the one sentence a person
   reads before installing.
+- **A category invented for one plugin.** A category is a directory and it
+  exists because plugins are in it. If yours does not belong in any that are
+  here, say so in the pull request and propose the name — a shelf with one
+  thing on it is a decision, not a detail.
 - **Skills that only wrap a single shell command.** A plugin earns its row by
   teaching a shape of work, not by aliasing a binary.
