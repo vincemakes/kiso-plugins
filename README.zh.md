@@ -1,0 +1,70 @@
+# kiso 插件
+
+**本仓库存放 kiso 桌面应用的插件。** 它不是 kiso 运行时，也不扩展运行时。运行时
+是 [github.com/vincemakes/kiso](https://github.com/vincemakes/kiso) 上的开源引擎，
+它由 `kiso-*-ext` 这类 npm 包扩展，那些包都不在这里。如果你想给运行时增加工具、
+模型供应商或某种能力，这个仓库找错了。这里放的是另一样东西：一个个装着**技能**
+的文件夹，用来教桌面应用的 agent 怎么做某一类活儿。
+
+[English](README.md)
+
+## 什么是插件
+
+一个文件夹，里面有一份清单和若干技能。仅此而已。
+
+```
+plugins/short-drama/
+  kiso-plugin.json
+  icon.svg
+  README.md
+  skills/script/SKILL.md
+  skills/storyboard/SKILL.md
+  skills/assets/SKILL.md
+  skills/cut/SKILL.md
+```
+
+**插件是声明式的。它不携带代码，里面的任何东西都不会在应用进程里运行。** 技能是
+写给 agent 读的操作说明；清单只按名字声明这些说明会调用哪些命令行工具、需要哪些
+密钥。安装就是一次经过校验的文件拷贝：不启动任何服务，不授予任何命令，任何时候
+都不执行任何东西。
+
+这就是全部的信任边界，它小是故意的。
+
+## 现有插件
+
+| id | 做什么 | 需要 |
+|---|---|---|
+| [`fix-and-prove`](plugins/fix-and-prove) | 在代码仓库里修一处问题，并把证据留在旁边：diff、测试记录、截图 | `git`、`npm` |
+| [`short-drama`](plugins/short-drama) | 从一句话的设定走完四步：剧本、分镜、素材、成片 | `ffmpeg`、`ffprobe` |
+| [`shorts-pack`](plugins/shorts-pack) | 把一段长录像切成竖屏短视频 | 某个 `whisper`、`ffmpeg`、`ffprobe` |
+
+这三个是官方插件，在此维护。也欢迎社区插件，见
+[CONTRIBUTING.md](CONTRIBUTING.md)（英文）。
+
+**本仓库是它们的唯一来源。** 桌面应用在 `packs/` 下保留一份自用的副本供其证明
+套件使用；那份副本跟随这里。
+
+## 安装
+
+克隆本仓库，然后在应用里：**Settings → Integrations → Plugins → Add**，选择从
+文件夹安装，指向 `plugins/<id>`。
+
+目前还不能用本仓库的 git 地址直接安装：应用的 git 安装会在克隆的根目录找清单，
+而一个合集的根目录没有清单。[docs/plugin-format.md](docs/plugin-format.md) 里写了
+怎样才能补上这个缺口。
+
+## 自己写一个
+
+[docs/plugin-format.md](docs/plugin-format.md) 按应用真实的读取方式，逐字段说明了
+清单的每一项、安装会做什么和绝不会做什么，以及 `SKILL.md` 必须遵守的规则。
+
+```bash
+npm run check
+```
+
+`check` 会用应用自己的规则校验这里的每个插件，再用一批故意写坏的样本证明这些检查
+确实会触发，并检查仓库是否用英文书写。在这里通过的插件，在那边就能装上。
+
+## 许可
+
+MIT，见 [LICENSE](LICENSE)。
