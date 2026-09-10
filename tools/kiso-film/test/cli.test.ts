@@ -38,6 +38,14 @@ test('a missing key is exit 2, the variable NAME, and nothing else on the line',
   const r = run(['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5'], { FAL_KEY: '' })
   assert.equal(r.status, 2)
   assert.equal(r.stderr.trim().split('\n').pop(), 'FAL_KEY')
+  // AND THE UNVERIFIED-ROUTE LINE IS ON THE SEND PATH, not only in --dry-run.
+  //
+  // This is the line the owner reads the first time they spend money through
+  // this tool, which is the whole reason it exists. It was written, it worked,
+  // and only its dry-run form was asserted — so it could have vanished and
+  // this test would still have passed, because the assertion above reads the
+  // LAST line of stderr and the warning is not the last line.
+  assert.match(r.stderr, /route to .* is unverified/)
 })
 
 test('--dry-run shows the body that WOULD be sent, names the route unverified, and sends nothing', () => {

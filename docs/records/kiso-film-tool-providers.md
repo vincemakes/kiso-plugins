@@ -116,6 +116,8 @@ describing the program.
 | a debug print of `process.env` on the key path | the canary test, naming the command and the stream; and the "a key is read in exactly two places" test |
 | the allow-list pointed at a file that calls nothing | the "the allowed file DOES reach the network" test, with its own message |
 
+| the unverified-route line changed so it no longer says it | the missing-key test, which now asserts that line as well |
+
 **The third probe lied the first time and I nearly believed it.** I broke the
 allowed file by removing its imports; the suite reported no failures, and I
 read that as the check not firing. It was a **compile error**: `npm test` is
@@ -127,6 +129,38 @@ either. **A red-proof has to assert that the suite RAN**, not only that
 something failed — a count of passes distinguishes "the check did not fire"
 from "nothing was checked". The probe was re-shaped to keep the program
 compiling, and then it fired.
+
+**And it happened again within the hour, on the fourth probe** — `if (false)`
+in front of the line broke the narrowing that the exit above it provides, so
+`route` became possibly-undefined and nothing compiled. This time the lesson
+was an hour old and the pass count was the first thing looked at: no passes,
+so no run, so no result. The probe that works changes what the line *says*
+rather than whether it runs, which leaves every type intact. A probe has to be
+a change the compiler accepts, and the cheapest such change is usually to a
+string rather than to control flow.
+
+### Where the unverified-route line is asserted, and where it was not
+
+The line naming a route unverified is printed twice over: by `models` beside
+the prices, and by `image` and `video` before they send. On the send path:
+
+```
+$ FAL_KEY= kiso-film video --prompt x --out no.mp4 --duration 5 --model seedance-2-5
+the route to fal.ai is unverified — it has not been checked against a real
+call. If this fails oddly, data/providers.json is the first place to look.
+FAL_KEY
+exit 2
+```
+
+**Only the `--dry-run` form of it was asserted when this lane was first
+delivered.** The send-path line — the one a person reads the first time they
+spend money, which is the whole reason it exists — was untested, and the
+missing-key test would have kept passing without it, because that test reads
+the LAST line of stderr and the warning is not the last line. A claim covered
+where covering it was easy and not where it mattered.
+
+It is asserted now, on the same invocation, and red-proved by changing what
+the line says.
 
 ### A key is read in two places, and the test names both
 
