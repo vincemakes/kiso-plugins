@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '../..')
 
 /** Scanned roots. Everything else (node_modules, out, artifacts) is ignored. */
-const ROOTS = ['plugins', 'scripts', 'docs']
+const ROOTS = ['plugins', 'scripts', 'docs', 'tools']
 const ALSO = ['CONTRIBUTING.md']
 const EXT = new Set(['.ts', '.tsx', '.mjs', '.js', '.md', '.css', '.html', '.json'])
 
@@ -70,7 +70,7 @@ function scanFile(abs) {
 
 function walk(dir) {
   for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === 'artifacts' || entry.startsWith('.')) continue
+    if (entry === 'node_modules' || entry === 'artifacts' || entry === 'build' || entry.startsWith('.')) continue
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) walk(full)
     else if (EXT.has(entry.slice(entry.lastIndexOf('.')))) scanFile(full)

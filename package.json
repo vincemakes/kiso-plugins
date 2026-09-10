@@ -9,6 +9,7 @@
     "validate": "node scripts/validate.mjs",
     "validate:selftest": "node scripts/validate.mjs --selftest",
     "gate:cjk": "node scripts/gates/cjk-gate.mjs",
-    "check": "npm run validate && npm run validate:selftest && npm run gate:cjk"
+    "check": "npm run validate && npm run validate:selftest && npm run gate:cjk && npm run test:tool",
+    "test:tool": "npm --prefix tools/kiso-film test"
   }
 }

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "kiso-film model table",
+  "description": "Facts about third-party image and video models: what each can do, what it costs, and what its route calls things. Carried as data; no entry is verified until a real call or a reading of the provider's own documentation says so.",
+  "type": "object",
+  "required": ["schemaVersion", "models"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "models": { "type": "array", "items": { "$ref": "#/definitions/model" } }
+  },
+  "definitions": {
+    "model": {
+      "type": "object",
+      "required": ["id", "kind", "label", "provider", "providerModelId", "available", "verified", "price"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "kind": { "type": "string", "enum": ["video", "image"] },
+        "label": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "providerModelId": { "type": "string", "minLength": 1 },
+        "available": { "type": "boolean" },
+        "verified": { "type": "boolean" },
+        "maxResolution": { "type": "string" },
+        "defaultResolution": { "type": "string" },
+        "resolutions": { "type": "array", "items": { "type": "string" } },
+        "aspectRatios": { "type": "array", "items": { "type": "string" } },
+        "capabilities": { "$ref": "#/definitions/capabilities" },
+        "duration": { "$ref": "#/definitions/duration" },
+        "price": { "$ref": "#/definitions/price" },
+        "params": { "$ref": "#/definitions/params" }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "required": ["startImage", "endImage", "maxReferenceImages", "motionReference", "nativeAudio", "lipSync"],
+      "additionalProperties": false,
+      "properties": {
+        "startImage": { "type": "boolean" },
+        "endImage": { "type": "boolean" },
+        "maxReferenceImages": { "type": "integer", "minimum": 0 },
+        "motionReference": { "type": "boolean" },
+        "audioReference": { "type": "boolean" },
+        "maxAudioReferences": { "type": "integer", "minimum": 0 },
+        "nativeAudio": { "type": "boolean" },
+        "lipSync": { "type": "boolean" },
+        "multiSubject": { "type": "boolean" }
+      }
+    },
+    "duration": {
+      "type": "object",
+      "required": ["minSeconds", "maxSeconds", "defaultSeconds"],
+      "additionalProperties": false,
+      "properties": {
+        "minSeconds": { "type": "integer", "minimum": 1 },
+        "maxSeconds": { "type": "integer", "minimum": 1 },
+        "defaultSeconds": { "type": "integer", "minimum": 1 },
+        "choicesSeconds": { "type": "array", "items": { "type": "integer", "minimum": 1 } }
+      }
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "perSecondUsd": { "type": ["number", "null"], "minimum": 0 },
+        "perSecondWithAudioUsd": { "type": ["number", "null"], "minimum": 0 },
+        "perSecondByResolutionUsd": { "type": ["object", "null"] },
+        "perImageUsd": { "type": "number", "minimum": 0 }
+      }
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "referenceImages": { "type": ["string", "null"] },
+        "startImage": { "type": ["string", "null"] },
+        "endImage": { "type": ["string", "null"] },
+        "resolution": { "type": ["string", "null"] },
+        "aspectRatio": { "type": ["string", "null"] },
+        "audio": { "type": ["string", "null"] },
+        "audioReference": { "type": ["string", "null"] },
+        "mode": { "type": ["string", "null"] },
+        "durationFormat": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
