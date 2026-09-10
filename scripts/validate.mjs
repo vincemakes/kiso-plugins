@@ -150,8 +150,19 @@ export function parseOffers(text) {
     if (current === null) return
     const item = current
     current = null
-    if (item.from.trim() === '' || item.says.trim() === '') return
-    out.push(item)
+    /*
+     * WHAT THE APP DROPS, KEPT AND MARKED.
+     *
+     * The App discards an offer with no `from` or no `says` before anything
+     * else sees it — the skill loads, the plugin installs, and the sentence
+     * the author wrote simply never exists. This parser keeps it with a
+     * `dropped` reason instead, so the collection can refuse what the App
+     * would silently ignore. `offerProblems` is the only reader; nothing
+     * treats a dropped item as a live offer.
+     */
+    if (item.from.trim() === '') { out.push({ ...item, dropped: 'it has no `from`, so the App discards it before anything can show it' }); return }
+    if (item.says.trim() === '') { out.push({ ...item, dropped: 'it has no `says`, so there is no sentence for the App to show' }); return }
+    out.push({ ...item, dropped: null })
   }
   const put = (item, key, value) => {
     const v = unquote(value)
@@ -194,10 +205,45 @@ const asRendererWord = (raw) => raw.replace(/\s+/g, ' ').trim().toLowerCase().sp
  * MCP servers, one level further out: a manifest — here, a front matter —
  * saying something the App will not do.
  */
+/** skills.ts: an offer past this many in one skill is dropped. */
+const MAX_OFFERS_PER_SKILL = 12
+
+/**
+ * How many `offers:` blocks the file DECLARES, counted as plain text.
+ *
+ * The parser is a port, and a port can stop matching a shape without anything
+ * saying so — an offers list indented with a tab, a block after a key the
+ * scanner treats as the end. Then the count of parsed offers goes to zero and
+ * a green run means "nothing was checked" while looking exactly like "nothing
+ * was wrong". Counting the headers a second way, with a regex over the raw
+ * text, is what tells those two apart.
+ */
+export function declaredOfferBlocks(text) {
+  return (text.match(/^offers:[ \t]*$/gm) ?? []).length
+}
+
 export function offerProblems(skillId, text) {
   const problems = []
   const offers = parseOffers(text)
+
+  // The parser found no block where the text plainly has one: the port has
+  // stopped reading a shape it used to read, and everything below would
+  // report nothing at all.
+  const declared = declaredOfferBlocks(text)
+  if (declared > 0 && offers.length === 0) {
+    problems.push(`${skillId}: an \`offers:\` block is declared and the parser read no offer out of it — either the block is malformed, or this validator has stopped matching a shape the App still reads. Neither is safe to pass`)
+  }
+
+  if (offers.length > MAX_OFFERS_PER_SKILL) {
+    problems.push(`${skillId}: ${offers.length} offers, and the App reads the first ${MAX_OFFERS_PER_SKILL} — the rest are dropped without a word`)
+  }
+
   for (const offer of offers) {
+    if (offer.dropped !== null && offer.dropped !== undefined) {
+      const which = offer.says.trim() !== '' ? `"${offer.says}"` : (offer.from.trim() !== '' ? `\`from: ${offer.from}\`` : 'an offer')
+      problems.push(`${skillId}: ${which} is not an offer — ${offer.dropped}`)
+      continue
+    }
     const from = asRendererWord(offer.from)
     if (!RENDERER_TYPES.has(from)) {
       problems.push(`${skillId}: offer "${offer.says}" is \`from: ${offer.from}\`, which is not a renderer word — one of ${[...RENDERER_TYPES].join(', ')}. The App keeps the word, and the sentence never appears, because no artifact is ever that type`)
@@ -210,7 +256,9 @@ export function offerProblems(skillId, text) {
       }
     }
   }
-  return { problems, count: offers.length }
+  // The count is LIVE offers — the ones the App would actually show. A
+  // dropped one is reported above and is not something that was checked.
+  return { problems, count: offers.filter((o) => o.dropped === null || o.dropped === undefined).length }
 }
 
 /** `readHead`, ported: the App reads only the first 8 KB looking for `---`. */
@@ -567,6 +615,12 @@ function selftest() {
     (makes === null ? '' : `    makes: ${makes}\n`) +
     '---\n\n# One\n'
 
+  /** A SKILL.md whose offers block is whatever the caller wants, so a
+   *  malformed one can be written at all — `offerSkill` above can only make
+   *  well-formed ones. */
+  const rawOfferSkill = (block) =>
+    `---\nname: one\ndescription: Does one thing.\noffers:\n${block}---\n\n# One\n`
+
   const build = (label, mutate) => {
     const g = good()
     mutate(g)
@@ -617,6 +671,20 @@ function selftest() {
     ['an offer whose makes is not a renderer word', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', 'sound')), 'is `makes: sound`, which is not a renderer word'],
     ['an offer with NO makes is legal — the App reads it as file', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', null)), null],
     ['a media type narrows to its top-level word, and case does not matter', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('Image/PNG', 'Video')), null],
+    /*
+     * THE THREE THE APP DROPS WITHOUT A WORD, and the count that catches a
+     * parser which has stopped reading.
+     *
+     * Each of these installs today and does nothing: the skill loads, the
+     * plugin looks complete, and the sentence the author wrote never appears
+     * anywhere. That is the same silence `secrets`, `commands` and the
+     * renderer words were closed for.
+     */
+    ['an offer with no says', (g) => (g.files['skills/one/SKILL.md'] = rawOfferSkill('  - from: audio\n')), 'there is no sentence for the App to show'],
+    ['an offer with no from', (g) => (g.files['skills/one/SKILL.md'] = rawOfferSkill('  - says: "Do the thing"\n')), 'it has no `from`'],
+    ['more offers than the App reads', (g) => (g.files['skills/one/SKILL.md'] = rawOfferSkill(Array.from({ length: 13 }, (_, i) => `  - from: audio\n    says: "Sentence ${i}"\n`).join(''))), 'the App reads the first 12'],
+    ['a declared block the parser reads nothing out of', (g) => (g.files['skills/one/SKILL.md'] = rawOfferSkill('\tnot a list at all\n')), 'the parser read no offer out of it'],
+    ['twelve offers is the limit, not eleven', (g) => (g.files['skills/one/SKILL.md'] = rawOfferSkill(Array.from({ length: 12 }, (_, i) => `  - from: audio\n    says: "Sentence ${i}"\n`).join(''))), null],
     ['a lower-case secret', (g) => (g.manifest.secrets = ['sample_key']), 'not an UPPER_CASE environment variable name'],
     ['a command that is a path', (g) => (g.manifest.commands = ['/usr/bin/ffmpeg']), 'not a plain executable name'],
     ['a command with an argument', (g) => (g.manifest.commands = ['ffmpeg -y']), 'not a plain executable name'],
