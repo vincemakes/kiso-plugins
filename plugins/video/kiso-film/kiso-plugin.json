@@ -1,0 +1,24 @@
+{
+  "id": "kiso-film",
+  "name": "kiso film",
+  "version": "0.1.0",
+  "description": "One sentence in, a film out — and every part of it is a thing on the canvas you can take hold of and change.",
+  "host": "kiso-app",
+  "category": "video",
+  "skills": [
+    "brief",
+    "screenplay",
+    "characters",
+    "shot-list",
+    "shot-prompts",
+    "drama",
+    "film-study"
+  ],
+  "commands": [
+    "kiso-film",
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "secrets": [],
+  "icon": "icon.svg"
+}
