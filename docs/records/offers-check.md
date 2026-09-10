@@ -165,3 +165,22 @@ wrong by writing what seemed reasonable instead of what the host does.
 - **Anything outside `scripts/validate.mjs`.** No skill, manifest, document or
   README changed: the three real offers were already correct, which is why the
   only evidence in this lane is fixtures and probes.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** One commit, two files, surveyed from the main
+checkout at 0a2a2a0: the rule refuses an offer whose `from` or `makes` is
+outside the App's eight renderer words — the eight exactly, my "plus `file`"
+corrected by the executor before a line was written — and the parser is
+ported from the host's own reader rather than written from the ADR, which
+is what keeps three of the host's rules (lower-casing and narrowing, the
+silent drop of an offer with no `from` or `says`, `makes` optional and read
+as `file`) from being "improved" into refusals of front matter that works.
+The two green fixtures that guard those are the ones this verdict values
+most. The executor's counts: 43 of 43 fixtures, `check` exit 0 on a fresh
+clone with the plugin's line saying *3 offers read and checked*; red-proved
+three ways, two of them the two ways the rule could have been stricter than
+the host. The correction to the lane's framing is accepted as written: the
+real collection proves no false positive, the self-test proves the rule.
+Rulings: §4.1 and §4.2 as one later lane, `kiso-plugins-offers-check-2`,
+after `kiso-film-tool`. Next: `kiso-film-tool`.
