@@ -42,6 +42,7 @@ them.
 | `plugins/video/kiso-film/skills/film-study/SKILL.md` | A clip you have to `study/<name>.json` — its camera language as a shot list |
 | `plugins/video/kiso-film/README.md` | What each skill makes, what is needed, and four things it will not do |
 | `README.md`, `README.zh.md` | The index gains its first category and its first row |
+| `plugins/.gitkeep` | Deleted. The layout lane added it so an empty `plugins/` would exist in a clone; a plugin holds the directory open now, and that record's §4.1 said this pull request is where it goes |
 
 Seven skills and the reference come to about 800 lines.
 
