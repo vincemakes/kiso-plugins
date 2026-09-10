@@ -156,3 +156,24 @@ sub-path form more attractive —
   would be the one thing the validator refuses.
 - **The Actions workflow is unchanged.** It runs `npm run check` and nothing
   else, which is green on an empty collection.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** Surveyed from the collection's main checkout at
+304ee35: the three bootstrap plugins gone and `plugins/.gitkeep` the only
+thing left under `plugins/`, as the owner ruled; a category is a directory,
+`category` in the manifest is refused when it is not the parent, a plugin at
+the flat depth is refused, a category with no plugin is refused, and an
+empty collection is green and says so — the four rulings as given; the
+README's table is now an index built from the directories and, with none,
+says the collection is open and names the first to come. The record is
+public and clean — no private strings, no machine paths — and §5 says the
+App was not touched, which the diff confirms. The executor's counts: 37 of
+37 fixtures on a fresh clone, `check` exit 0; the four red-proofs each fail
+exactly one fixture. The finding worth keeping is the first: without the
+depth rule a flat plugin is not skipped, it is *misread* into a category
+named after a plugin holding a plugin named after a directory — the rule
+prevents an invention, not an omission. The header commit stays for the
+reason the executor gave. The leader's own `npm run check` runs in the main
+checkout at the merge, and the Actions `check` on the push is the
+fresh-clone proof. Next for this executor: `kiso-film-skills`.
