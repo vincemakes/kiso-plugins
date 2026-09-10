@@ -1,0 +1,33 @@
+{
+  "name": "@vincemakes/kiso-film",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "kiso-film": "build/src/cli.js"
+  },
+  "files": [
+    "build/src",
+    "data",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"build/test/*.test.js\"",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "@types/node": "22.10.2"
+  },
+  "description": "The command-line tool behind the kiso-film plugin: the model table, project config, price estimates and the final cut.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vincemakes/kiso-plugins.git",
+    "directory": "tools/kiso-film"
+  }
+}

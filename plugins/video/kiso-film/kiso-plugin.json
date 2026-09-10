@@ -2,7 +2,7 @@
   "id": "kiso-film",
   "name": "kiso film",
   "version": "0.1.0",
-  "description": "One sentence in, a film out — and every part of it is a thing on the canvas you can take hold of and change.",
+  "description": "One sentence in, a film out \u2014 and every part of it is a thing on the canvas you can take hold of and change.",
   "host": "kiso-app",
   "category": "video",
   "skills": [
@@ -19,6 +19,9 @@
     "ffmpeg",
     "ffprobe"
   ],
-  "secrets": [],
+  "secrets": [
+    "FAL_KEY",
+    "BYTEPLUS_API_KEY"
+  ],
   "icon": "icon.svg"
 }
