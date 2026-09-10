@@ -37,8 +37,15 @@ That is the whole trust boundary, and it is small on purpose.
 
 ## The plugins
 
-**None yet.** The collection is open, and the first is on its way:
-`plugins/video/kiso-film`.
+### video
+
+| plugin | what it does | needs |
+|---|---|---|
+| [`kiso-film`](plugins/video/kiso-film) | One sentence in, a film out. v0 is the writing chain: brief, screenplay, characters, shot list, prompts | `ffmpeg` for one skill; `kiso-film` when the tool lands |
+
+The index is the directories. A category is a directory and it exists because
+a plugin is in it, so a heading here is never one you can click into and find
+nothing.
 
 Until 2026-09-10 this repository carried three plugins copied from the kiso
 desktop app's own `packs/`. They went back to being the app's alone; what was
