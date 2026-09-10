@@ -6,13 +6,18 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 
 /**
- * THIS HALF OF THE TOOL CANNOT MAKE A CALL, and that is a property a reviewer
- * should be able to check rather than take on trust.
+ * EXACTLY ONE FILE IN THIS PACKAGE REACHES THE NETWORK, and that is a
+ * property a reviewer should be able to check rather than take on trust.
  *
- * The seam between this lane and the next one is exactly the network. The
- * providers, the keys and the money all arrive together in the next lane, and
- * the reason to split there was so that this one could be reviewed without
- * any of it. A promise in a record is worth nothing next to a test.
+ * Until the providers landed, the answer was "none". It is now "one", and the
+ * difference is the whole reason the allow-list is a single named path rather
+ * than a directory: a second file added to `src/net/` would pass a
+ * directory-shaped rule and fail this one.
+ *
+ * The test asserts BOTH directions. Nothing outside `src/net/http.ts` may
+ * reach the network, and `src/net/http.ts` MUST — an allow-list pointing at a
+ * file that no longer calls anything is a rule that has quietly stopped
+ * describing the program.
  */
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..')
 
@@ -53,12 +58,31 @@ function offenders(files: readonly string[]): string[] {
   return hits
 }
 
-test('nothing in src/ can reach the network', () => {
-  assert.deepEqual(offenders(sources(join(ROOT, 'src'))), [])
+/** The one file allowed to call out, by exact path from the package root. */
+const ALLOWED = ['src/net/http.ts', 'build/src/net/http.js']
+
+const outside = (dir: string): string[] =>
+  offenders(sources(dir).filter((f) => !ALLOWED.includes(f.slice(ROOT.length + 1))))
+
+test('nothing in src/ reaches the network except the one file that is allowed to', () => {
+  assert.deepEqual(outside(join(ROOT, 'src')), [])
 })
 
-test('and nothing in the BUILT output can either — the tarball is what ships', () => {
-  assert.deepEqual(offenders(sources(join(ROOT, 'build', 'src'))), [])
+test('and nothing in the BUILT output either — the tarball is what ships', () => {
+  assert.deepEqual(outside(join(ROOT, 'build', 'src')), [])
+})
+
+test('the allowed file DOES reach the network — an allow-list pointing at nothing is not a rule', () => {
+  for (const allowed of ALLOWED) {
+    const hits = offenders([join(ROOT, allowed)])
+    assert.ok(hits.length > 0, `${allowed} is on the allow-list and calls nothing — either it moved or the rule has stopped describing the program`)
+  }
+})
+
+test('the allow-list names FILES, not a directory — a second file beside it is caught', () => {
+  // A rule written as "anything under src/net" would let a second client in
+  // without a word. This asserts the shape of the rule itself.
+  for (const entry of ALLOWED) assert.match(entry, /\.(ts|js)$/)
 })
 
 test('the scan FIRES — it is not a grep that matches nothing', () => {
@@ -72,13 +96,49 @@ test('the scan FIRES — it is not a grep that matches nothing', () => {
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
 
-test('no key is read anywhere in this half — only key NAMES, for saying what is missing', () => {
-  // `PROVIDER_KEY_ENV` maps a provider to the variable its key would arrive
-  // in, and `isReachable` asks whether that variable is set. Neither reads a
-  // value into anything that could print, log or write it.
-  const text = sources(join(ROOT, 'src')).map((f) => readFileSync(f, 'utf8')).join('\n')
-  for (const line of text.split('\n')) {
-    if (!/process\.env|\benv\[/.test(line)) continue
-    assert.match(line, /PROVIDER_KEY_ENV|env\[name\]|NodeJS\.ProcessEnv|process\.env\b/, `an environment read this test does not know about: ${line.trim()}`)
+/**
+ * A KEY IS READ IN EXACTLY TWO PLACES, AND EACH DOES ONE THING WITH IT.
+ *
+ * This test said "no key is read anywhere" until the providers landed, which
+ * was true then and is not now. It is rewritten rather than relaxed: the
+ * invariant that matters is no longer *none*, it is *these two and no
+ * others*.
+ *
+ *   models.ts   asks whether the variable is SET, and never reads the value
+ *               into anything — that is how `kiso-film models` marks a row
+ *               reachable.
+ *   generate.ts reads the value once, registers it for redaction on the very
+ *               next line, and puts it in a header.
+ *
+ * A third place is what this catches, and a third place is how a key ends up
+ * in a log line.
+ */
+const ENV_READERS = ['src/models.ts', 'src/generate.ts']
+
+test('a key is read in exactly two places, and the test names both', () => {
+  const found = new Set<string>()
+  for (const file of sources(join(ROOT, 'src'))) {
+    const rel = file.slice(ROOT.length + 1)
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (/ENV_READERS|environment variable/.test(line)) continue
+      if (/\benv\[|process\.env\b/.test(line)) found.add(rel)
+    }
   }
+  assert.deepEqual([...found].sort(), [...ENV_READERS].sort())
+})
+
+test('the one that reads a VALUE registers it for redaction in the same function', () => {
+  const text = readFileSync(join(ROOT, 'src', 'generate.ts'), 'utf8')
+  const fn = /export function keyFor[\s\S]*?\n}/.exec(text)
+  assert.ok(fn !== null, 'keyFor is not where this test expects it')
+  assert.match(fn[0], /registerSecret\(key\)/, 'a key is read and not registered — every message after this point could carry it')
+  assert.match(fn[0], /return key/)
+})
+
+test('the one that only checks PRESENCE never puts the value anywhere', () => {
+  const text = readFileSync(join(ROOT, 'src', 'models.ts'), 'utf8')
+  const fn = /export function isReachable[\s\S]*?\n}/.exec(text)
+  assert.ok(fn !== null)
+  // It may compare the value; it may not return it, print it or store it.
+  assert.doesNotMatch(fn[0], /return value(?!\s*!==|\s*===)|console\.|process\.stdout|process\.stderr|writeFileSync/)
 })

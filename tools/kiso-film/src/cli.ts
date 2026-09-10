@@ -22,7 +22,10 @@ import { join, resolve } from 'node:path'
 import { loadTable, isReachable, perSecondUsd, PROVIDER_KEY_ENV, TableError, type Model } from './models.js'
 import { CONFIG_FILE, applySets, checkConfig, readConfig, writeConfig } from './config.js'
 import { estimate, formatUsd, readShots } from './estimate.js'
-import { concatListFile, ffmpegArgs, hasFades, missingInputs, parseCut } from './compose.js'
+import { concatListFile, ffmpegArgs, ffprobePresent, hasFades, missingInputs, parseCut, probeDurations } from './compose.js'
+import { loadProviders, routeFor } from './providers.js'
+import { MissingKeyError, runJob } from './generate.js'
+import { buildInput, checkSupported, UnsupportedError } from './request.js'
 import { readFileSync } from 'node:fs'
 
 const HELP = `kiso-film — the tool behind the kiso-film plugin
@@ -39,15 +42,25 @@ const HELP = `kiso-film — the tool behind the kiso-film plugin
   kiso-film compose <cut.json> --out <film.mp4> [--dry-run]
       Join the clips a cut names, with fades, under one audio track.
 
-  kiso-film image | video
-      Not built yet — they arrive with the provider clients.
+  kiso-film image  --prompt <text> --out <file.png> [--ref <file> ...]
+                   [--model <id>] [--aspect <ratio>]
+  kiso-film video  --prompt <text> --out <file.mp4> --duration <seconds>
+                   [--start <file>] [--end <file>] [--ref <file> ...]
+                   [--motion-ref <file>] [--model <id>] [--resolution <r>]
+      Generate, and write the file. Refused before anything is sent when the
+      table says the model does not take what was asked for.
 
 Every price in the table is UNVERIFIED: carried as data, and not yet checked
 against a provider's own documentation or a real call. Anything that prints a
 price says so.
 
-No command here sends anything anywhere. Keys are read from the environment
-and never written to a file; nothing in this half of the tool reads one.
+image and video are the only commands that send anything. Keys are read from
+the environment by the names "kiso-film models" prints, put in a header and
+nowhere else, and never written to a file, printed or logged.
+
+The provider ROUTES are unverified too — where a job is submitted, what its
+states are called, where the finished file's URL sits. They are data, in
+data/providers.json, so a wrong one is an edit rather than a release.
 
 Exit codes: 0 worked · 1 bad input · 2 missing environment variable
             3 a declared command is missing · 4 not built yet`
@@ -105,6 +118,12 @@ function cmdModels(argv: readonly string[]): void {
   process.stdout.write('· = no key for this provider in the environment\n')
   const names = [...new Set(models.map((m) => PROVIDER_KEY_ENV[m.provider]).filter((x): x is string => x !== undefined))]
   if (names.length > 0) process.stdout.write(`keys read from: ${names.join(', ')}\n`)
+  // The ROUTE is unverified as well as the price, and for the same reason:
+  // nobody has watched it work. Said here because this is the page a person
+  // reads before choosing a model.
+  const routes = loadProviders().providers.filter((r) => models.some((m) => m.provider === r.id))
+  const unverifiedRoutes = routes.filter((r) => !r.verified).map((r) => r.label)
+  if (unverifiedRoutes.length > 0) process.stdout.write(`route unverified: ${unverifiedRoutes.join(', ')} — how a job is submitted and polled is data in data/providers.json, not yet checked against a real call\n`)
   if (unverified > 0) process.stdout.write(`${unverified} of ${models.length} unverified — every price below is a figure to check, not a quote\n`)
 }
 
@@ -170,6 +189,80 @@ function cmdEstimate(argv: readonly string[], shotsPath: string | undefined): vo
   if (result.overBudget) { process.stdout.write(`\nover the budget in ${CONFIG_FILE}\n`); process.exitCode = 1 }
 }
 
+/**
+ * `image` and `video` — the only two commands that send anything.
+ *
+ * The order is deliberate and every step before the send is free: read the
+ * config, find the model, CHECK THE CAPABILITIES, find the route, read the
+ * key. A command line that asks a model for something it cannot do is refused
+ * before a byte leaves, with the reason and with the models that could.
+ */
+async function cmdGenerate(argv: readonly string[], kind: 'image' | 'video'): Promise<void> {
+  const prompt = value(argv, 'prompt')
+  const out = value(argv, 'out')
+  if (prompt === undefined || prompt.trim() === '') die(1, `${kind} needs --prompt "<text>"`)
+  if (out === undefined) die(1, `${kind} needs --out <file>`)
+  const dir = resolve(value(argv, 'dir') ?? '.')
+  const table = loadTable()
+  const { config } = readConfig(dir)
+  const modelId = value(argv, 'model') ?? (kind === 'image' ? config.imageModel : config.videoModel)
+  const model = table.models.find((m) => m.id === modelId)
+  if (model === undefined) die(1, `no model with the id "${modelId}" — run \`kiso-film models\``)
+  if (model.kind !== kind) die(1, `"${modelId}" is ${model.kind === 'image' ? 'an image' : 'a video'} model, and this is \`kiso-film ${kind}\``)
+
+  const durationRaw = value(argv, 'duration')
+  const duration = durationRaw === undefined ? undefined : Number(durationRaw)
+  if (kind === 'video' && (duration === undefined || !Number.isFinite(duration))) die(1, 'video needs --duration <seconds>')
+
+  const input = {
+    prompt,
+    ...(values(argv, 'ref').length > 0 ? { references: values(argv, 'ref') } : {}),
+    ...(value(argv, 'start') === undefined ? {} : { startImage: value(argv, 'start') as string }),
+    ...(value(argv, 'end') === undefined ? {} : { endImage: value(argv, 'end') as string }),
+    ...(value(argv, 'motion-ref') === undefined ? {} : { motionReference: value(argv, 'motion-ref') as string }),
+    ...(duration === undefined ? {} : { durationSeconds: duration }),
+    ...(kind === 'video' ? { resolution: value(argv, 'resolution') ?? config.resolution } : {}),
+    aspectRatio: value(argv, 'aspect') ?? config.aspectRatio
+  }
+
+  const unsupported = checkSupported(model, input, table)
+  if (unsupported.length > 0) {
+    for (const u of unsupported) process.stderr.write(`  ${u}\n`)
+    die(1, `${model.label} was asked for something it does not do. Nothing was sent.`)
+  }
+  for (const local of [...(input.references ?? []), input.startImage, input.endImage, input.motionReference]) {
+    if (local !== undefined && !/^https?:\/\//.test(local) && !existsSync(local)) die(1, `${local} is not there`)
+  }
+
+  const providers = loadProviders()
+  const route = routeFor(providers, model.provider)
+  if (route === undefined) die(1, `the table says ${model.label} is served by "${model.provider}", and data/providers.json has no route for it`)
+
+  const body = buildInput(model, input)
+  if (flag(argv, 'dry-run')) {
+    process.stdout.write(`${model.label} via ${route.label}${route.verified ? '' : ' (route unverified)'}\n`)
+    process.stdout.write(`${JSON.stringify(body, null, 2)}\n`)
+    process.stdout.write('nothing was sent\n')
+    return
+  }
+
+  if (!route.verified) process.stderr.write(`the route to ${route.label} is unverified — it has not been checked against a real call. If this fails oddly, data/providers.json is the first place to look.\n`)
+  try {
+    const result = await runJob(providers, model.provider, {
+      providerModelId: model.providerModelId,
+      input: body,
+      out,
+      ...(value(argv, 'timeout') === undefined ? {} : { timeoutMs: Number(value(argv, 'timeout')) * 1000 }),
+      onStatus: (status, elapsed) => { if (!flag(argv, 'quiet')) process.stderr.write(`  ${status} ${Math.round(elapsed / 1000)}s\n`) }
+    })
+    process.stdout.write(`${result.out}\n`)
+  } catch (err) {
+    if (err instanceof MissingKeyError) die(2, err.variable)
+    if (err instanceof UnsupportedError) die(1, err.message)
+    die(1, err instanceof Error ? err.message : String(err))
+  }
+}
+
 function ffmpegPresent(): boolean {
   return spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' }).status === 0
 }
@@ -189,7 +282,15 @@ function cmdCompose(argv: readonly string[], cutPath: string | undefined): void 
   const dry = flag(argv, 'dry-run')
   if (!dry && !ffmpegPresent()) die(3, 'ffmpeg is not on this machine. Install it (on macOS: brew install ffmpeg) and run this again. Nothing was fetched.')
 
-  const durations = cut.clips.map(() => 0)
+  let durations = cut.clips.map(() => 0)
+  if (hasFades(cut)) {
+    // A fade offset is arithmetic on real lengths, and a generated clip is
+    // often not the length it was asked for.
+    if (!ffprobePresent()) die(3, 'this cut has cross-fades, and their offsets need the clips\' real lengths. ffprobe is not on this machine (on macOS: brew install ffmpeg). Nothing was fetched.')
+    const probed = probeDurations(cut, baseDir)
+    durations = probed.durations
+    for (const name of probed.unreadable) process.stderr.write(`  ${name}: ffprobe could not read a duration — treated as 0, which will put the next fade at the earliest possible offset\n`)
+  }
   const args = hasFades(cut) ? ffmpegArgs(cut, out, durations, baseDir) : null
   if (args === null) {
     const work = mkdtempSync(join(tmpdir(), 'kiso-film-'))
@@ -220,9 +321,8 @@ function main(): void {
       case 'config': cmdConfig(argv); return
       case 'estimate': cmdEstimate(argv, argv[1]); return
       case 'compose': cmdCompose(argv, argv[1]); return
-      case 'image':
-      case 'video':
-        die(4, `\`kiso-film ${command}\` is not built yet — it arrives with the provider clients. Nothing was sent anywhere.`)
+      case 'image': void cmdGenerate(argv, 'image'); return
+      case 'video': void cmdGenerate(argv, 'video'); return
       default:
         die(1, `unknown command "${command}"\n\n${HELP}`)
     }
