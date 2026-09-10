@@ -44,6 +44,12 @@ export const MANIFEST = 'kiso-plugin.json'
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/
 /** projects.ts `isExecutableName` — a name, never a path, never a command line. */
 const EXECUTABLE_RE = /^[A-Za-z0-9][A-Za-z0-9._+-]*$/
+/**
+ * THE RENDERER VOCABULARY — the App's `ARTIFACT_TYPES`, and the only words an
+ * offer's `from` and `makes` may be (ADR-011 clause 2: "exactly the eight
+ * renderer words"). `file` is one of the eight, not an addition to them.
+ */
+const RENDERER_TYPES = new Set(['web', 'markdown', 'image', 'video', 'audio', 'file', 'diff', 'table'])
 /** A category is a directory name and a path segment, so it is shaped like an
  *  id. This collection's rule, not the App's. */
 const CATEGORY_RE = /^[a-z0-9][a-z0-9-]*$/
@@ -107,6 +113,106 @@ function parseFrontmatter(text) {
   return meta
 }
 
+/**
+ * `parseOffers`, ported from the App's `skills.ts`.
+ *
+ * The App reads the `offers:` block with a small block-list scanner rather
+ * than through the flat frontmatter subset, so a check that read it any other
+ * way would be checking a different file from the one the App reads. Kept
+ * deliberately close to the original, including the parts that look like
+ * details and are not:
+ *
+ *   · `from` and `makes` are LOWERCASED, and a media type narrows to its
+ *     top-level word — `image/png` is `image`. So `Image` and `image/png` are
+ *     both legal and neither is a finding.
+ *   · An offer with no `from` or no `says` is DROPPED by the App, silently.
+ *   · `makes` is OPTIONAL: absent, the App reads it as `file`. Refusing an
+ *     absent `makes` here would refuse something that works.
+ *
+ * Returns what the App would have read, plus the raw words, because a message
+ * that says what was written is more use than one that says what it became.
+ */
+export function parseOffers(text) {
+  if (!text.startsWith('---\n')) return []
+  const end = text.indexOf('\n---', 4)
+  if (end < 0) return []
+  const lines = text.slice(4, end).split('\n')
+  const start = lines.findIndex((l) => /^offers:\s*$/.test(l))
+  if (start < 0) return []
+  const unquote = (v) => {
+    const t = v.trim()
+    if (t.length >= 2 && ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'")))) return t.slice(1, -1)
+    return t
+  }
+  const out = []
+  let current = null
+  const flush = () => {
+    if (current === null) return
+    const item = current
+    current = null
+    if (item.from.trim() === '' || item.says.trim() === '') return
+    out.push(item)
+  }
+  const put = (item, key, value) => {
+    const v = unquote(value)
+    if (key === 'says') item.says = v
+    else if (key === 'makes') item.makes = v
+    else if (key === 'from') item.from = v
+  }
+  for (const raw of lines.slice(start + 1)) {
+    if (raw.trim() === '') continue
+    if (/^[A-Za-z]/.test(raw)) break
+    const head = /^\s+-\s*(?:([A-Za-z][A-Za-z0-9_-]*):\s*(.*))?$/.exec(raw)
+    if (head !== null) {
+      flush()
+      current = { from: '', says: '', makes: '' }
+      if (head[1] !== undefined) put(current, head[1], head[2] ?? '')
+      continue
+    }
+    const pair = /^\s+([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/.exec(raw)
+    if (pair !== null && current !== null) put(current, pair[1], pair[2])
+  }
+  flush()
+  return out
+}
+
+/** What the App reads a written word as: lower-cased, narrowed to the
+ *  top-level of a media type. */
+const asRendererWord = (raw) => raw.replace(/\s+/g, ' ').trim().toLowerCase().split('/')[0]
+
+/**
+ * Every offer's `from`, and every `makes` that is written, must be one of the
+ * renderer words.
+ *
+ * WHY THIS IS AN ERROR HERE AND NOTHING AT ALL THERE. The App does not refuse
+ * an offer outside the vocabulary — it reads the word, keeps it, and the
+ * sentence simply never appears against any artifact, because no artifact ever
+ * has that type. The skill loads, the plugin installs, and the one thing the
+ * author wrote the offer for does not happen. Nothing anywhere says so.
+ *
+ * That is the same silent drop this file refuses for `secrets`, `commands` and
+ * MCP servers, one level further out: a manifest — here, a front matter —
+ * saying something the App will not do.
+ */
+export function offerProblems(skillId, text) {
+  const problems = []
+  const offers = parseOffers(text)
+  for (const offer of offers) {
+    const from = asRendererWord(offer.from)
+    if (!RENDERER_TYPES.has(from)) {
+      problems.push(`${skillId}: offer "${offer.says}" is \`from: ${offer.from}\`, which is not a renderer word — one of ${[...RENDERER_TYPES].join(', ')}. The App keeps the word, and the sentence never appears, because no artifact is ever that type`)
+    }
+    // ABSENT is legal and means `file`; WRITTEN and wrong is not.
+    if (offer.makes.trim() !== '') {
+      const makes = asRendererWord(offer.makes)
+      if (!RENDERER_TYPES.has(makes)) {
+        problems.push(`${skillId}: offer "${offer.says}" is \`makes: ${offer.makes}\`, which is not a renderer word — one of ${[...RENDERER_TYPES].join(', ')}`)
+      }
+    }
+  }
+  return { problems, count: offers.length }
+}
+
 /** `readHead`, ported: the App reads only the first 8 KB looking for `---`. */
 function readHead(path) {
   const fd = openSync(path, 'r')
@@ -127,6 +233,17 @@ function readHead(path) {
 export function validatePlugin(dir, dirName, categoryName) {
   const errors = []
   const warnings = []
+  /*
+   * HOW MANY OFFERS WERE ACTUALLY READ.
+   *
+   * Every real offer in this collection is correct, so the rule below never
+   * fires on it and a green run says only "nothing was wrong". It would say
+   * exactly the same if the parser had silently read NOTHING — a port that
+   * matched no front matter at all passes every plugin, for ever, in silence.
+   * So the count is reported, and a plugin that declares offers and reads as
+   * zero is visible in the line rather than in nobody's head.
+   */
+  let offersRead = 0
   const bad = (m) => errors.push(m)
 
   const path = join(dir, MANIFEST)
@@ -300,6 +417,10 @@ export function validatePlugin(dir, dirName, categoryName) {
     const description = (meta['description'] ?? '').replace(/\s+/g, ' ').trim()
     if (description === '') bad(`skills/${s}/SKILL.md has no "description" — the App would list the skill as broken`)
     else if (description.length > MAX_DESCRIPTION) warnings.push(`skills/${s}: description is ${description.length} chars; the App's index cuts it at ${MAX_DESCRIPTION}`)
+    // The offers block, read the way the App reads it (ADR-011 clause 2).
+    const off = offerProblems(`skills/${s}`, head)
+    for (const x of off.problems) bad(x)
+    offersRead += off.count
   }
 
   // Directories under skills/ that no manifest entry names are not installed
@@ -311,6 +432,8 @@ export function validatePlugin(dir, dirName, categoryName) {
       if (d.isDirectory() && !skills.includes(d.name)) warnings.push(`skills/${d.name} is not named in "skills" — it will be copied and never read`)
     }
   }
+
+  if (offersRead > 0) warnings.push(`${offersRead} offer${offersRead === 1 ? '' : 's'} read and checked against the renderer words`)
 
   return { errors, warnings }
 }
@@ -436,6 +559,14 @@ function selftest() {
     files: { 'icon.svg': '<svg xmlns="http://www.w3.org/2000/svg"/>', 'skills/one/SKILL.md': '---\nname: one\ndescription: Does one thing.\n---\n\n# One\n' }
   })
 
+  /** A valid SKILL.md carrying one offer, so the block is the only thing under
+   *  test: the name and description are always right. */
+  const offerSkill = (from, makes) =>
+    '---\nname: one\ndescription: Does one thing.\noffers:\n' +
+    `  - from: ${from}\n    says: "Do the thing"\n` +
+    (makes === null ? '' : `    makes: ${makes}\n`) +
+    '---\n\n# One\n'
+
   const build = (label, mutate) => {
     const g = good()
     mutate(g)
@@ -470,6 +601,22 @@ function selftest() {
     ['a declared skill with no SKILL.md', (g) => (g.manifest.skills = ['one', 'two']), 'skills/two/SKILL.md is missing'],
     ['a SKILL.md with no frontmatter', (g) => (g.files['skills/one/SKILL.md'] = '# One\n'), 'no --- frontmatter block'],
     ['a SKILL.md with no description', (g) => (g.files['skills/one/SKILL.md'] = '---\nname: one\n---\n# One\n'), 'has no "description"'],
+    /*
+     * THE OFFERS BLOCK (ADR-011 clause 2).
+     *
+     * `sound` is the fixture that must be REFUSED and `audio` the one that
+     * must PASS, because the two are the same idea in English and only one of
+     * them is a renderer word — which is exactly how an author gets this
+     * wrong. Six cases rather than two: four of them are the rule's
+     * boundaries, and getting a boundary wrong here would REFUSE SOMETHING
+     * THAT WORKS, which is worse than the silence this rule exists to end.
+     */
+    ['an offer whose from is a renderer word', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', 'markdown')), null],
+    ['an offer whose from is not a renderer word', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('sound', 'markdown')), 'is `from: sound`, which is not a renderer word'],
+    ['an offer whose makes is a renderer word', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', 'audio')), null],
+    ['an offer whose makes is not a renderer word', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', 'sound')), 'is `makes: sound`, which is not a renderer word'],
+    ['an offer with NO makes is legal — the App reads it as file', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('audio', null)), null],
+    ['a media type narrows to its top-level word, and case does not matter', (g) => (g.files['skills/one/SKILL.md'] = offerSkill('Image/PNG', 'Video')), null],
     ['a lower-case secret', (g) => (g.manifest.secrets = ['sample_key']), 'not an UPPER_CASE environment variable name'],
     ['a command that is a path', (g) => (g.manifest.commands = ['/usr/bin/ffmpeg']), 'not a plain executable name'],
     ['a command with an argument', (g) => (g.manifest.commands = ['ffmpeg -y']), 'not a plain executable name'],
