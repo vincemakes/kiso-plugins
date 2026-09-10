@@ -222,3 +222,29 @@ person to reach for it as a reference will find the same absence.
   spends it twice. When a retry lands it belongs beside the budget ask.
 - **Fallback routes.** Still out, for the reason the first half gave: a
   fallback nobody has watched fail is a code path nobody has tested.
+
+## 7. Verdict (leader, 2026-09-10)
+
+**Approved and merged.** Surveyed from the main checkout at 3f6c573 and merged one commit later: fifteen files, all inside the package and its record; a provider is
+a row in `providers.json` under its own schema — `fal` and `byteplus`, both
+`verified: false`, the wire shape as data because the reference goes through
+a vendor SDK and holds no protocol to read — and one driver reads the row.
+Exactly one file may reach the network, named by path in both the source
+and the built output, asserted in both directions; a key is read in two
+places the test names, registered for redaction before it is used, put in a
+header and never a URL, and the canary now covers the two sending commands
+and their failure paths; the unverified-route line on the SEND path is
+asserted in the commit the executor added after reporting, unasked, that
+only its dry-run form was covered — the record's §3 says what is covered
+where. `--motion-ref` refuses before sending and names
+every model that takes one. The executor's counts: 71 of 71, `check` exit 0
+on a fresh clone; no real call made and nothing `verified: true`, which is
+the right state for a lane with no keys of its own. Rulings on §4: the
+first real call decides the upload step and the descriptor grows it — until
+then the honest use is URLs, as the record says; byteplus stays a row;
+a duration `ffprobe` cannot read is a zero with its name. The lesson worth
+the whole lane — a red-proof asserts the suite ran, and a pass count is what
+separates "the check did not fire" from "nothing was checked" — goes into
+the App's engineering §8 by the leader. Next in the collection:
+`kiso-plugins-offers-check-2`; the first real call is the owner's, with
+their keys, and it opens the graph lane.
