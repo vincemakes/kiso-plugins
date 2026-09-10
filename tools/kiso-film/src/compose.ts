@@ -9,6 +9,7 @@
  * ffmpeg is DECLARED, never fetched. It is checked for, and its absence is an
  * exit code and a sentence naming what to install.
  */
+import { spawnSync } from 'node:child_process'
 import { existsSync, writeFileSync } from 'node:fs'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 
@@ -129,3 +130,33 @@ export function hasFades(cut: Cut): boolean {
 }
 
 export function outDir(out: string): string { return dirname(resolve(out)) }
+
+/**
+ * How long each clip actually is, from `ffprobe`.
+ *
+ * The first half of this tool passed zeros here, because nothing in it was
+ * allowed to run a subprocess for a value that changes the output — so a cut
+ * with fades was correct only if every clip was the length the shot list
+ * said. A generated clip is often not: a model asked for five seconds returns
+ * what its own quantisation gives.
+ *
+ * A clip whose duration cannot be read is a ZERO with its name reported, not
+ * a guess. Zero puts the next fade at the earliest possible offset, which is
+ * visibly wrong in the result rather than subtly wrong.
+ */
+export function probeDurations(cut: Cut, baseDir: string): { durations: number[]; unreadable: string[] } {
+  const durations: number[] = []
+  const unreadable: string[] = []
+  for (const clip of cut.clips) {
+    const at = isAbsolute(clip.path) ? clip.path : resolve(baseDir, clip.path)
+    const r = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', at], { encoding: 'utf8' })
+    const seconds = Number((r.stdout ?? '').trim())
+    if (r.status !== 0 || !Number.isFinite(seconds) || seconds <= 0) { durations.push(0); unreadable.push(clip.path); continue }
+    durations.push(seconds)
+  }
+  return { durations, unreadable }
+}
+
+export function ffprobePresent(): boolean {
+  return spawnSync('ffprobe', ['-version'], { stdio: 'ignore' }).status === 0
+}

@@ -27,13 +27,32 @@ test('an unknown command exits 1 and prints the help beside the complaint', () =
   assert.match(r.stderr, /unknown command "sing"/)
 })
 
-test('image and video exit 4 and say nothing was sent anywhere', () => {
-  for (const command of ['image', 'video']) {
-    const r = run([command])
-    assert.equal(r.status, 4, `${command} should exit 4 until it is built`)
-    assert.match(r.stderr, /not built yet/)
-    assert.match(r.stderr, /Nothing was sent anywhere/)
-  }
+test('image and video refuse a model that cannot do what was asked, BEFORE sending', () => {
+  const veo = run(['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'veo-3-1', '--motion-ref', '/etc/hosts'])
+  assert.equal(veo.status, 1)
+  assert.match(veo.stderr, /does not take a motion reference/)
+  assert.match(veo.stderr, /Nothing was sent/)
+})
+
+test('a missing key is exit 2, the variable NAME, and nothing else on the line', () => {
+  const r = run(['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5'], { FAL_KEY: '' })
+  assert.equal(r.status, 2)
+  assert.equal(r.stderr.trim().split('\n').pop(), 'FAL_KEY')
+})
+
+test('--dry-run shows the body that WOULD be sent, names the route unverified, and sends nothing', () => {
+  const r = run(['video', '--prompt', 'a slow push in', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5', '--dry-run'], { FAL_KEY: '' })
+  assert.equal(r.status, 0)
+  assert.match(r.stdout, /route unverified/)
+  assert.match(r.stdout, /nothing was sent/)
+  const body = JSON.parse(r.stdout.slice(r.stdout.indexOf('{'), r.stdout.lastIndexOf('}') + 1)) as Record<string, unknown>
+  assert.equal(body['prompt'], 'a slow push in')
+})
+
+test('a reference file that is not there is caught before anything is sent', () => {
+  const r = run(['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5', '--ref', '/nowhere/at/all.png'])
+  assert.equal(r.status, 1)
+  assert.match(r.stderr, /is not there/)
 })
 
 test('models --json is a list a skill can read', () => {
@@ -57,7 +76,18 @@ test('A KEY IS NEVER PRINTED — a canary in the environment reaches no output s
   // The canary is a value no code should ever read, let alone echo. If any
   // command grows a debug print of the environment, this fails.
   const canary = 'canary-9d1f4c7a-never-print-me'
-  for (const args of [['models'], ['models', '--json'], ['config'], ['--help']]) {
+  const commands: string[][] = [
+    ['models'], ['models', '--json'], ['config'], ['--help'],
+    // The two that read a key. A dry run reads it and sends nothing, which is
+    // exactly the path where a debug print would sit.
+    ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5', '--dry-run'],
+    ['image', '--prompt', 'x', '--out', '/tmp/no.png', '--model', 'flux-dev', '--dry-run'],
+    // And the two failure paths, because an error message is where a value
+    // most often escapes.
+    ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '99999', '--model', 'seedance-2-5'],
+    ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'nope']
+  ]
+  for (const args of commands) {
     const r = run(args, { FAL_KEY: canary, BYTEPLUS_API_KEY: canary })
     assert.doesNotMatch(r.stdout, new RegExp(canary), `${args.join(' ')} printed the key to stdout`)
     assert.doesNotMatch(r.stderr, new RegExp(canary), `${args.join(' ')} printed the key to stderr`)

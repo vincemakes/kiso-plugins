@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "kiso-film provider routes",
+  "description": "How each provider is talked to: where a job is submitted, where it is polled, what its states are called, and where the finished file's URL sits. Written as DATA because it is the part most likely to be wrong and the part a person should be able to correct without touching code. No route is verified until a real call has been made against it.",
+  "type": "object",
+  "required": ["schemaVersion", "providers"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "providers": { "type": "array", "items": { "$ref": "#/definitions/provider" } }
+  },
+  "definitions": {
+    "provider": {
+      "type": "object",
+      "required": ["id", "label", "keyEnv", "verified", "auth", "submit", "poll", "result"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "label": { "type": "string", "minLength": 1 },
+        "keyEnv": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "verified": { "type": "boolean" },
+        "auth": {
+          "type": "object",
+          "required": ["header", "format"],
+          "additionalProperties": false,
+          "properties": {
+            "header": { "type": "string", "minLength": 1 },
+            "format": { "type": "string", "pattern": "\\{key\\}" }
+          }
+        },
+        "submit": {
+          "type": "object",
+          "required": ["urlTemplate", "jobIdPaths"],
+          "additionalProperties": false,
+          "properties": {
+            "urlTemplate": { "type": "string", "minLength": 1 },
+            "jobIdPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          }
+        },
+        "poll": {
+          "type": "object",
+          "required": ["urlTemplate", "statusPaths", "doneStates", "failedStates", "intervalMs"],
+          "additionalProperties": false,
+          "properties": {
+            "urlTemplate": { "type": "string", "minLength": 1 },
+            "statusPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "doneStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "failedStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "workingStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "errorPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+            "intervalMs": { "type": "integer", "minimum": 100 }
+          }
+        },
+        "result": {
+          "type": "object",
+          "required": ["urlTemplate", "outputUrlPaths"],
+          "additionalProperties": false,
+          "properties": {
+            "urlTemplate": { "type": "string", "minLength": 1 },
+            "outputUrlPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+          }
+        }
+      }
+    }
+  }
+}
