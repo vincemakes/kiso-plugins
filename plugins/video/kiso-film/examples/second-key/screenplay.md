@@ -84,14 +84,27 @@ decides what he looks like.
 
 ### Places
 
-**The eleventh-floor landing** — a short concrete landing, two flat doors, one
-strip light working and a second that ticks and does not come on. Grey painted
-walls to waist height, breeze-block above. Whenever we return it is the same
-hour of the night and the same one light.
+**The eleventh-floor landing** — A short concrete landing with two flat doors
+facing each other, grey paint to waist height and bare breeze-block above. One
+fluorescent strip light burns in the ceiling; a second tube beside it is dead
+and ticks. The floor is bare screed with a dark scuff arc where one door swings.
 
-**Flat 11B** — empty. Bare floorboards with dust, no furniture, no curtains,
-new plaster on the walls. The far wall carries small steel hooks from corner
-to corner, a key on every hook, an orange paper tag on every key.
+> The door of 11B is a flush grey fire door with a brass numeral 11B at eye
+> height and a brass cylinder lock below it.
+
+> The working strip light is a single fluorescent tube in a ceiling channel,
+> its diffuser missing, throwing a hard line down the middle of the landing.
+
+**Flat 11B** — An empty flat: bare floorboards with a film of dust, no
+furniture, no curtains, new plaster on every wall. A short hall runs off the
+main room into darkness. One long drag mark crosses the dust from the door
+toward the far wall.
+
+> The far wall carries small steel hooks from corner to corner, a key hanging
+> on every hook and a small orange paper tag on every key.
+
+> The drag mark is a single wide smear through the dust, running from the
+> doorway to the foot of the far wall.
 
 ### Rules
 
@@ -101,4 +114,6 @@ to corner, a key on every hook, an orange paper tag on every key.
   hers.
 - The only light in Scenes 4 and 5 is Ro's phone torch and what comes in from
   the landing behind her.
+- Whenever we return to the landing it is the same hour of the night and the
+  same one working tube.
 - Denner is never in frame in this episode. No part of him is lit.
