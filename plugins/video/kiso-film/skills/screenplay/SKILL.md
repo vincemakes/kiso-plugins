@@ -105,10 +105,18 @@ plan_artifacts(nodes=[
   {"path": "characters/alice.md",  "type": "markdown", "from": ["screenplay.md"]},
   {"path": "characters/bob.md",    "type": "markdown", "from": ["screenplay.md"]},
   {"path": "shots.json",           "type": "table",    "from": ["screenplay.md"]},
-  {"path": "prompts.md",           "type": "markdown", "from": ["shots.json"]}
+  {"path": "prompts.md",           "type": "markdown", "from": ["shots.json", "characters/alice.md", "characters/bob.md"]}
 ])
 ```
 
 One node per character actually named, at the path the `characters` skill will
 use — lower-case, the character's own name, one word. A plan that names a path
 no stage produces is a promise the canvas will show as unkept.
+
+**`prompts.md` descends from the sheets as well as from the shots**, and this
+is the plan that has to say so. `shot-prompts` pastes those sheets' words into
+the prompts and emits with all of them in its `from`, because a person who
+edits a sheet has made the prompts stale and the graph is what tells them. A
+plan drawing only the shot-list edge draws a graph the last stage will
+contradict, and leaves the sheets looking like a dead end until the moment they
+are not.

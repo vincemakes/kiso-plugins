@@ -26,15 +26,47 @@ them to whichever model a project chose, and a prompt written for one model's
 grammar is a prompt that has to be rewritten when the project changes its
 mind. Plain declarative sentences travel.
 
-## Consistency comes from copying, not from remembering
+## Consistency comes from copying — but only about what is in frame
 
-Every shot's first-frame prompt that includes a character **pastes that
-character's appearance paragraph verbatim** from their sheet. Not a summary,
-not "Alice as before" — the paragraph, every time. The generations are
-separate calls with no memory of each other, so the only thing holding a face
-the same is that the same words were sent.
+The generations are separate calls with no memory of each other, so the only
+thing holding a face the same across twelve shots is that the same words were
+sent. That is why the words are copied rather than summarised.
 
-The same goes for a place: the screenplay's continuity entry for it, copied.
+**What is copied depends on what the camera can see.** There are three cases
+and they are not a matter of taste:
+
+**1. The character's face or body is in frame.** Paste that character's
+**appearance paragraph verbatim** from their sheet. Not a summary, not "Alice
+as before" — the paragraph, every time.
+
+**2. An insert: only a part of them is in frame** — a hand on a door, a sleeve
+at the edge, a shoulder from behind. Paste **only the sentence about that
+part**, verbatim from the sheet, and nothing else about them.
+
+> Her hands are broad and short-nailed, with a dark line of graphite under the
+> right thumbnail.
+
+That one sentence does the whole job, because the hand is the only thing being
+held consistent. **The full paragraph here is worse than useless: it is
+wrong.** A model told about a scar through the left eyebrow while being asked
+for a photograph of a phone screen may put a face in the frame — and if it does
+not, you have paid for a hundred words of instruction about things outside the
+picture, in every insert, in every shot list.
+
+**3. The character is not in the shot at all.** Say nothing about them. Not
+their name, not their clothes, not "Alice's flat". The frame is what the prompt
+describes.
+
+The same rule applies to a place: the screenplay's continuity entry for it,
+copied — when the place is what the shot is of.
+
+**The sheets have to support this**, which is a requirement on `characters`
+and not on you: an appearance sheet carries one sentence per part that a camera
+can isolate — hands, the jacket, the shoes — so an insert has something exact
+to quote. If the sentence you need is not there, quote the nearest thing that
+is and say in one line under the prompt that the sheet has no sentence for that
+part. Do not write one: a detail invented here and pasted twelve times is a
+detail the sheet does not know about.
 
 ## The shape
 
@@ -70,6 +102,9 @@ the table.
 - **The first-frame prompt describes one instant.** No "then", no "as she
   turns". A still cannot show a sequence, and asking it to produces a blurred
   compromise.
+- **Everything in the prompt is in the frame.** Read the finished prompt and
+  ask of each sentence: could the camera see this? A sentence that fails is a
+  sentence the model will try to satisfy anyway.
 - **The clip prompt describes only change.** What moves, and how the camera
   moves. Do not restate the appearance or the lighting: the first frame
   already fixed them, and repeating them invites the model to redraw them.
@@ -97,7 +132,8 @@ emit_artifact(path="prompts.md", type="markdown",
 ```
 
 **`from` lists the shot list AND every character sheet a prompt quotes**, and
-that is not padding. Those paragraphs are in this file verbatim; if a person
+that is not padding. A sheet quoted for one sentence counts: the sentence came
+from it, and changing it makes this file stale. Those paragraphs are in this file verbatim; if a person
 changes Alice's sheet, this file is stale, and the graph is what tells them
 so. A sheet that no prompt quoted is not listed.
 

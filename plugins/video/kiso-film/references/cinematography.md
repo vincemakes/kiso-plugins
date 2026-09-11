@@ -73,6 +73,12 @@ Two rules a generated shot in particular needs:
 | `practical` | lamps, screens, signs in the frame | a room that lights itself; the cheapest realism there is |
 | `golden` | low warm sun | endings, memory, the last good day |
 
+**Two words where two are the truth.** A phone torch in an unlit flat is
+`practical low-key`: the source is in the frame and the room is shadow, and
+choosing one of those throws away half the shot. Two is the limit — three is a
+description rather than a vocabulary. The row names the RESULT; the source
+itself belongs in the shot's blocking, where a prompt can find it and use it.
+
 ## Reaching for a shot when you know the feeling
 
 These are starting points, not rules. The reason they work is written beside
@@ -104,3 +110,15 @@ two, a `medium` with dialogue in the time the line takes plus a breath, a
 Generated clips have a ceiling their model sets, and it is usually short.
 Where a beat needs longer than the model gives, it is two shots, not one long
 one — and two shots of the same moment need a size or an angle between them.
+
+**And a floor, which binds more often than the ceiling.** Most models will not
+make a clip shorter than a few seconds, while the shots above — an
+`extreme-close` on an object at about a second — are exactly the ones a film
+wants shortest. The two pull against each other, and the film wins: **generate
+at the model's floor and trim in the cut.** A short insert is not a mistake to
+be lengthened; it is a length the generator cannot reach directly.
+
+The shot list says both numbers — what to ask for, and what the film uses —
+and the cut obeys the second. **The floor itself is never guessed here.** It is
+a fact about a particular model, it differs by a factor of several across
+them, and a shot shortened to an imagined minimum is a cut nobody made.

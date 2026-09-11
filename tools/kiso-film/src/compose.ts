@@ -17,6 +17,16 @@ export interface CutClip {
   readonly path: string
   /** Seconds of cross-fade INTO this clip. Zero, or absent, is a hard cut. */
   readonly fadeInSeconds?: number
+  /**
+   * The length the FILM uses, when it is shorter than the clip.
+   *
+   * Most video models will not generate below a floor of a few seconds, and a
+   * short insert is exactly the shot a film wants shortest. So the shot list
+   * asks for the floor and records what the cut should use; this is that
+   * second number arriving where it can be obeyed. Without it the row is a
+   * note in a table that nothing downstream reads.
+   */
+  readonly trimToSeconds?: number
 }
 
 export interface Cut {
@@ -47,7 +57,13 @@ export function parseCut(text: string, path: string): Cut {
     const p = co['path']
     if (typeof p !== 'string' || p === '') throw new Error(`${path}: clip ${i} has no "path"`)
     const fade = typeof co['fadeInSeconds'] === 'number' ? co['fadeInSeconds'] : 0
-    clips.push(fade > 0 ? { path: p, fadeInSeconds: fade } : { path: p })
+    const trim = typeof co['trimToSeconds'] === 'number' ? co['trimToSeconds'] : 0
+    if (trim < 0) throw new Error(`${path}: clip ${i} has a negative "trimToSeconds"`)
+    clips.push({
+      path: p,
+      ...(fade > 0 ? { fadeInSeconds: fade } : {}),
+      ...(trim > 0 ? { trimToSeconds: trim } : {})
+    })
   })
   const audio = typeof o['audio'] === 'string' && o['audio'] !== '' ? o['audio'] : undefined
   const fadeOut = typeof o['audioFadeOutSeconds'] === 'number' ? o['audioFadeOutSeconds'] : undefined
@@ -88,22 +104,34 @@ export function ffmpegArgs(cut: Cut, out: string, durations: readonly number[], 
   if (cut.audio !== undefined) args.push('-i', at(cut.audio))
 
   const filters: string[] = []
-  let current = '[0:v]'
-  let elapsed = durations[0] ?? 0
+  const effective = effectiveDurations(cut, durations)
+  /* A trim is applied to each input FIRST, so every later offset is arithmetic
+     on what the film actually contains. `setpts` restarts the clock, without
+     which a trimmed stream keeps its original timestamps and the fade lands
+     nowhere near the cut. */
+  const sourceOf = (i: number): string => {
+    const trim = cut.clips[i]?.trimToSeconds ?? 0
+    if (trim <= 0) return `[${i}:v]`
+    filters.push(`[${i}:v]trim=duration=${trim.toFixed(3)},setpts=PTS-STARTPTS[t${i}]`)
+    return `[t${i}]`
+  }
+  let current = sourceOf(0)
+  let elapsed = effective[0] ?? 0
   for (let i = 1; i < cut.clips.length; i++) {
     const fade = cut.clips[i]?.fadeInSeconds ?? 0
     const label = i === cut.clips.length - 1 ? '[v]' : `[v${i}]`
+    const source = sourceOf(i)
     if (fade > 0) {
       const offset = Math.max(0, elapsed - fade)
-      filters.push(`${current}[${i}:v]xfade=transition=fade:duration=${fade}:offset=${offset.toFixed(3)}${label}`)
-      elapsed = elapsed - fade + (durations[i] ?? 0)
+      filters.push(`${current}${source}xfade=transition=fade:duration=${fade}:offset=${offset.toFixed(3)}${label}`)
+      elapsed = elapsed - fade + (effective[i] ?? 0)
     } else {
-      filters.push(`${current}[${i}:v]concat=n=2:v=1:a=0${label}`)
-      elapsed += durations[i] ?? 0
+      filters.push(`${current}${source}concat=n=2:v=1:a=0${label}`)
+      elapsed += effective[i] ?? 0
     }
     current = label
   }
-  if (cut.clips.length === 1) filters.push('[0:v]null[v]')
+  if (cut.clips.length === 1) filters.push(`${current}null[v]`)
 
   args.push('-filter_complex', filters.join(';'), '-map', '[v]')
   if (cut.audio !== undefined) {
@@ -127,6 +155,25 @@ export function concatListFile(cut: Cut, listPath: string, baseDir: string): voi
 
 export function hasFades(cut: Cut): boolean {
   return cut.clips.some((c) => (c.fadeInSeconds ?? 0) > 0)
+}
+
+export function hasTrims(cut: Cut): boolean {
+  return cut.clips.some((c) => (c.trimToSeconds ?? 0) > 0)
+}
+
+/** What each clip contributes to the film: its trim where one is given, its
+ *  real length otherwise. The fade arithmetic runs on these, not on the files'
+ *  durations — a trimmed clip that still counted its full length would push
+ *  every later fade too late. */
+export function effectiveDurations(cut: Cut, durations: readonly number[]): number[] {
+  return cut.clips.map((c, i) => {
+    const trim = c.trimToSeconds ?? 0
+    const real = durations[i] ?? 0
+    if (trim <= 0) return real
+    // A trim longer than the clip is the shot list disagreeing with the file.
+    // The file wins, because it is the thing that exists.
+    return real > 0 ? Math.min(trim, real) : trim
+  })
 }
 
 export function outDir(out: string): string { return dirname(resolve(out)) }

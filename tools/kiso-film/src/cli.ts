@@ -22,7 +22,7 @@ import { join, resolve } from 'node:path'
 import { loadTable, isReachable, perSecondUsd, PROVIDER_KEY_ENV, TableError, type Model } from './models.js'
 import { CONFIG_FILE, applySets, checkConfig, readConfig, writeConfig } from './config.js'
 import { estimate, formatUsd, readShots } from './estimate.js'
-import { concatListFile, ffmpegArgs, ffprobePresent, hasFades, missingInputs, parseCut, probeDurations } from './compose.js'
+import { concatListFile, ffmpegArgs, ffprobePresent, hasFades, hasTrims, missingInputs, parseCut, probeDurations } from './compose.js'
 import { loadProviders, routeFor } from './providers.js'
 import { finalBody, MissingKeyError, runJob } from './generate.js'
 import { buildInput, checkSupported, UnsupportedError } from './request.js'
@@ -283,16 +283,19 @@ function cmdCompose(argv: readonly string[], cutPath: string | undefined): void 
   const dry = flag(argv, 'dry-run')
   if (!dry && !ffmpegPresent()) die(3, 'ffmpeg is not on this machine. Install it (on macOS: brew install ffmpeg) and run this again. Nothing was fetched.')
 
+  // A trim needs re-encoding, so it takes the same path a fade does — the
+  // stream-copy path cannot cut a frame off anything.
+  const needsFilter = hasFades(cut) || hasTrims(cut)
   let durations = cut.clips.map(() => 0)
-  if (hasFades(cut)) {
+  if (needsFilter) {
     // A fade offset is arithmetic on real lengths, and a generated clip is
     // often not the length it was asked for.
-    if (!ffprobePresent()) die(3, 'this cut has cross-fades, and their offsets need the clips\' real lengths. ffprobe is not on this machine (on macOS: brew install ffmpeg). Nothing was fetched.')
+    if (!ffprobePresent()) die(3, 'this cut has cross-fades or trims, and their arithmetic needs the clips\' real lengths. ffprobe is not on this machine (on macOS: brew install ffmpeg). Nothing was fetched.')
     const probed = probeDurations(cut, baseDir)
     durations = probed.durations
     for (const name of probed.unreadable) process.stderr.write(`  ${name}: ffprobe could not read a duration — treated as 0, which will put the next fade at the earliest possible offset\n`)
   }
-  const args = hasFades(cut) ? ffmpegArgs(cut, out, durations, baseDir) : null
+  const args = needsFilter ? ffmpegArgs(cut, out, durations, baseDir) : null
   if (args === null) {
     const work = mkdtempSync(join(tmpdir(), 'kiso-film-'))
     const list = join(work, 'clips.txt')

@@ -19,7 +19,7 @@ through `src/net/http.ts` and nowhere else.
 | `kiso-film models [--json] [--kind video\|image] [--reachable]` | What the table knows, and which models a key is present for |
 | `kiso-film config [--dir <path>] [--set field=value ...]` | Read or write the project's `film.config.json` |
 | `kiso-film estimate <shots.json>` | Price a shot list from the table, before anything is spent |
-| `kiso-film compose <cut.json> --out <film.mp4> [--dry-run]` | Join the clips a cut names, with fades, under one audio track |
+| `kiso-film compose <cut.json> --out <film.mp4> [--dry-run]` | Join the clips a cut names, with fades and trims, under one audio track |
 | `kiso-film image --prompt <text> --out <file.png> [--ref <file> ...]` | Generate a still |
 | `kiso-film video --prompt <text> --out <file.mp4> --duration <s> [--start <f>] [--end <f>] [--motion-ref <f>]` | Generate a clip |
 
@@ -146,6 +146,31 @@ say which call earned it is a flag nobody can check later.
 
 Nothing else becomes verified. `fal`, `byteplus`, and the other twenty-two
 entries have still never been called.
+
+## The cut
+
+`cut.json` is a running order:
+
+```json
+{
+  "clips": [
+    "1-01.mp4",
+    { "path": "2-02.mp4", "trimToSeconds": 2 },
+    { "path": "2-03.mp4", "fadeInSeconds": 0.5 }
+  ],
+  "audio": "score.wav",
+  "audioFadeOutSeconds": 2
+}
+```
+
+**`trimToSeconds` is the length the film uses.** Most video models will not
+generate a clip below a floor of a few seconds, and a short insert is exactly
+the shot a film wants shortest — so the shot list asks for the floor and
+records what the cut should use, and this is where that second number is
+obeyed. A trim longer than the clip loses to the clip.
+
+A cut with fades or trims is re-encoded and needs `ffprobe` for the clips' real
+lengths; a cut with neither is joined without re-encoding.
 
 ## Keys
 
