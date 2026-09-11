@@ -141,3 +141,27 @@ None, and the App was not touched.
 - **Nothing was pushed.**
 - **The example.** Its author's.
 - **A combined test count.** §4.1.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged, with the conflict the executor had already resolved
+and proved.** One commit, surveyed from the main checkout at 384301f: F-11
+as a sentence about where the reader is standing — an installed plugin is
+its own directory alone, so the floor's source has three cases and the
+skill names which it is in and where the number came from; F-12 with the
+consequence nobody asked about caught — a trim on every row would have
+re-encoded every film to remove nothing, so a trim counts only where it is
+shorter than the clip by more than a frame; F-13 changing the bible, not
+only the quoting rule — a place gets a paragraph a camera can be pointed at
+and rules under their own heading, never quoted; F-14 an order for two
+lighting words. The branch was cut before `film-cli-polish` merged and the
+two touch adjacent import lines in `cli.ts`; the resolution is both imports,
+which the executor merged in a throwaway clone and ran rather than read,
+and the leader applied the same resolution in the merge commit and ran the
+suite on the merged tree — the count in the tool README is the measured one
+from that run, not a number written for a tree that did not yet exist.
+Rulings: (1) the merged count is written by whoever merges second, here;
+(2) `ffprobe` for any cut with a trim is accepted — it ships with `ffmpeg`,
+and the alternative is trusting a number about a file without opening it.
+The example's empty `trim_to_s` rows wait for the diff to say whether a
+third emission is worth it. Idle now until the owner's call.
