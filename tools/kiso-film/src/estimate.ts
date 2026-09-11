@@ -118,6 +118,27 @@ export function estimate(table: Table, input: EstimateInput): Estimate {
   }
 }
 
+/** A TOTAL, which is money someone will be asked to approve: two decimals. */
 export function formatUsd(n: number): string {
   return `$${n.toFixed(2)}`
+}
+
+/**
+ * A RATE, which is a figure someone compares models by: the number the table
+ * carries, exactly.
+ *
+ * Two decimals merged entries. A per-image price of 0.0085 and one of 0.01
+ * both printed `$0.01`, so the page a person chooses a model from could not
+ * tell the cheapest from one nearly 18% dearer — and 0.025 printed `$0.03`,
+ * rounding a price UP on the screen where it is compared.
+ *
+ * A rounding that makes two different numbers print the same is not a display
+ * choice; it is the table saying something it does not know. So this prints
+ * what is there: at least two decimals, up to six, trailing zeros trimmed.
+ */
+export function formatRateUsd(n: number): string {
+  const exact = n.toFixed(6).replace(/0+$/, '')
+  const [whole = '0', fraction = ''] = exact.split('.')
+  const padded = fraction.length < 2 ? fraction.padEnd(2, '0') : fraction
+  return `$${whole}.${padded}`
 }

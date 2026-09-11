@@ -21,7 +21,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { loadTable, isReachable, perSecondUsd, PROVIDER_KEY_ENV, TableError, type Model } from './models.js'
 import { CONFIG_FILE, applySets, checkConfig, readConfig, writeConfig } from './config.js'
-import { estimate, formatUsd, readShots } from './estimate.js'
+import { estimate, formatRateUsd, formatUsd, readShots } from './estimate.js'
 import { concatListFile, ffmpegArgs, ffprobePresent, hasFades, hasTrims, missingInputs, parseCut, probeDurations } from './compose.js'
 import { loadProviders, routeFor } from './providers.js'
 import { finalBody, MissingKeyError, runJob } from './generate.js'
@@ -86,8 +86,8 @@ function modelLine(m: Model, reachable: boolean): string {
   const mark = m.verified ? ' ' : '?'
   const reach = reachable ? ' ' : '·'
   const price = m.kind === 'image'
-    ? (typeof m.price.perImageUsd === 'number' ? `${formatUsd(m.price.perImageUsd)}/image` : 'no price')
-    : (() => { const p = perSecondUsd(m); return p === null ? 'no price' : `${formatUsd(p)}/s` })()
+    ? (typeof m.price.perImageUsd === 'number' ? `${formatRateUsd(m.price.perImageUsd)}/image` : 'no price')
+    : (() => { const p = perSecondUsd(m); return p === null ? 'no price' : `${formatRateUsd(p)}/s` })()
   const caps: string[] = []
   const c = m.capabilities
   if (c !== undefined) {
@@ -98,7 +98,7 @@ function modelLine(m: Model, reachable: boolean): string {
     if (c.nativeAudio) caps.push('audio')
     if (c.lipSync) caps.push('lip-sync')
   }
-  return `${mark}${reach} ${m.id.padEnd(20)} ${m.provider.padEnd(9)} ${price.padEnd(13)} ${caps.join(' ')}`
+  return `${mark}${reach} ${m.id.padEnd(20)} ${m.provider.padEnd(9)} ${price.padEnd(15)} ${caps.join(' ')}`
 }
 
 function cmdModels(argv: readonly string[]): void {
@@ -314,7 +314,29 @@ function cmdCompose(argv: readonly string[], cutPath: string | undefined): void 
   process.stdout.write(`${out}\n`)
 }
 
+/**
+ * A CLOSED PIPE IS THE READER'S DECISION, NOT THIS PROGRAM'S FAILURE.
+ *
+ * `kiso-film models | head` closes the pipe once `head` has what it asked
+ * for, and every later write fails with EPIPE. Node turns an unhandled stream
+ * error into an uncaught exception, so the rows a person wanted were followed
+ * by a stack trace — which reads as the tool being broken, on the very command
+ * they would run first.
+ *
+ * Handled on both streams, and only for EPIPE: any other write failure is a
+ * real one and still raises.
+ */
+function exitQuietlyOnClosedPipe(): void {
+  for (const stream of [process.stdout, process.stderr]) {
+    stream.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EPIPE') process.exit(0)
+      throw err
+    })
+  }
+}
+
 function main(): void {
+  exitQuietlyOnClosedPipe()
   const argv = process.argv.slice(2)
   const command = argv[0]
   if (command === undefined || command === '--help' || command === '-h' || command === 'help') { process.stdout.write(`${HELP}\n`); return }
