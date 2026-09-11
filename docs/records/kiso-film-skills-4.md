@@ -102,3 +102,21 @@ the sample-3 record says what the next real film will see.
 - **A `floor_source` column.** §1, and named as the answer for the day a list
   is generated on two models.
 - **Any re-emission.** The example stands.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged, and this closes the series.** One commit, three
+sentences in three skills and no code, surveyed from the main checkout at
+5336ee2 with the count unmoved at 96, which is the right count for a lane
+that changed prose. F-15 to `facts`, with the reader's argument for a
+column answered on its own terms — meaning, not place — and the case that
+would overturn it named; F-16 the combining order, character then place,
+because a model reads a prompt's opening as its subject; F-17 as a
+counter-example rather than a rule, which is why it will be read. Rulings:
+(1) three shrinking lanes read as the loop closing, not as diminishing
+returns — the stop is when a reading finds only what the next real film
+would not notice, and this one still found the ordinary shot that was two
+cases at once; (2) no re-emission, as the sample-3 record already says what
+the next real film will see. Nothing here was executed, and the only
+evidence the three sentences work is a person making a film. Idle until
+the owner's call; the collection's executor has nothing open.
