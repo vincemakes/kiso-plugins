@@ -38,7 +38,7 @@ with a magnetic sign on the door, parked across two bays.
 ## How this brief was decided
 
 The `brief` skill asks three questions in one message and proposes the rest.
-The three were fixed in advance for this sample, and are recorded here rather
+The three were fixed in advance for this sample and are recorded here rather
 than asked:
 
 - **How long.** 60–90 seconds.
@@ -46,10 +46,12 @@ than asked:
 - **What it is for.** An episode that hooks the next one.
 
 Genre, tone, protagonist and world were proposed here, not asked, as the skill
-requires. The `drama` skill then took the length to **the lower end of what
-was said** — 60 seconds, not 90 — because drama runs long in the writing and
-is cut in the edit.
+requires. The `drama` skill then took the length to **the lower end of what was
+said** — 60 seconds, not 90 — because drama runs long in the writing and is cut
+in the edit.
 
-*(The skill's first instruction is `plan_artifacts`. Nothing in this sample
-calls a tool; the plan that would have been sent is in the record at
-`docs/records/kiso-film-sample.md`.)*
+**The plan drawn at this stage is incomplete in one edge, on purpose.** The
+skill says so itself: `prompts.md` descends from the character sheets as well
+as from the shot list, and the sheets cannot be named before anyone has a name.
+`screenplay` completes it. Nothing calls a tool in this sample; both plans are
+in the record at `docs/records/kiso-film-sample-2.md`.
