@@ -24,7 +24,7 @@ import { CONFIG_FILE, applySets, checkConfig, readConfig, writeConfig } from './
 import { estimate, formatUsd, readShots } from './estimate.js'
 import { concatListFile, ffmpegArgs, ffprobePresent, hasFades, missingInputs, parseCut, probeDurations } from './compose.js'
 import { loadProviders, routeFor } from './providers.js'
-import { MissingKeyError, runJob } from './generate.js'
+import { finalBody, MissingKeyError, runJob } from './generate.js'
 import { buildInput, checkSupported, UnsupportedError } from './request.js'
 import { readFileSync } from 'node:fs'
 
@@ -241,7 +241,8 @@ async function cmdGenerate(argv: readonly string[], kind: 'image' | 'video'): Pr
   const body = buildInput(model, input)
   if (flag(argv, 'dry-run')) {
     process.stdout.write(`${model.label} via ${route.label}${route.verified ? '' : ' (route unverified)'}\n`)
-    process.stdout.write(`${JSON.stringify(body, null, 2)}\n`)
+    // The body runJob would send, not the one before the route touches it.
+    process.stdout.write(`${JSON.stringify(finalBody(route, model.providerModelId, body), null, 2)}\n`)
     process.stdout.write('nothing was sent\n')
     return
   }

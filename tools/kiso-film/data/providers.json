@@ -6,23 +6,48 @@
       "label": "fal.ai",
       "keyEnv": "FAL_KEY",
       "verified": false,
-      "auth": { "header": "authorization", "format": "Key {key}" },
+      "auth": {
+        "header": "authorization",
+        "format": "Key {key}"
+      },
       "submit": {
         "urlTemplate": "https://queue.fal.run/{providerModelId}",
-        "jobIdPaths": ["request_id"]
+        "jobIdPaths": [
+          "request_id"
+        ]
       },
       "poll": {
         "urlTemplate": "https://queue.fal.run/{providerModelId}/requests/{jobId}/status",
-        "statusPaths": ["status"],
-        "doneStates": ["COMPLETED", "OK"],
-        "failedStates": ["FAILED", "ERROR", "CANCELLED"],
-        "workingStates": ["IN_QUEUE", "IN_PROGRESS"],
-        "errorPaths": ["error", "detail"],
+        "statusPaths": [
+          "status"
+        ],
+        "doneStates": [
+          "COMPLETED",
+          "OK"
+        ],
+        "failedStates": [
+          "FAILED",
+          "ERROR",
+          "CANCELLED"
+        ],
+        "workingStates": [
+          "IN_QUEUE",
+          "IN_PROGRESS"
+        ],
+        "errorPaths": [
+          "error",
+          "detail"
+        ],
         "intervalMs": 3000
       },
       "result": {
         "urlTemplate": "https://queue.fal.run/{providerModelId}/requests/{jobId}",
-        "outputUrlPaths": ["video.url", "images.0.url", "image.url", "output.url"]
+        "outputUrlPaths": [
+          "video.url",
+          "images.0.url",
+          "image.url",
+          "output.url"
+        ]
       }
     },
     {
@@ -30,23 +55,118 @@
       "label": "BytePlus ModelArk",
       "keyEnv": "BYTEPLUS_API_KEY",
       "verified": false,
-      "auth": { "header": "authorization", "format": "Bearer {key}" },
+      "auth": {
+        "header": "authorization",
+        "format": "Bearer {key}"
+      },
       "submit": {
         "urlTemplate": "https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks",
-        "jobIdPaths": ["id", "data.id"]
+        "modelParam": "model",
+        "jobIdPaths": [
+          "id",
+          "data.id"
+        ]
       },
       "poll": {
         "urlTemplate": "https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/{jobId}",
-        "statusPaths": ["status", "data.status"],
-        "doneStates": ["succeeded", "SUCCEEDED"],
-        "failedStates": ["failed", "FAILED", "cancelled", "CANCELLED"],
-        "workingStates": ["queued", "running", "QUEUED", "RUNNING"],
-        "errorPaths": ["error.message", "message"],
+        "statusPaths": [
+          "status",
+          "data.status"
+        ],
+        "doneStates": [
+          "succeeded",
+          "SUCCEEDED"
+        ],
+        "failedStates": [
+          "failed",
+          "FAILED",
+          "cancelled",
+          "CANCELLED"
+        ],
+        "workingStates": [
+          "queued",
+          "running",
+          "QUEUED",
+          "RUNNING"
+        ],
+        "errorPaths": [
+          "error.message",
+          "message"
+        ],
         "intervalMs": 3000
       },
       "result": {
         "urlTemplate": "https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks/{jobId}",
-        "outputUrlPaths": ["content.video_url", "data.content.video_url", "content.image_url"]
+        "outputUrlPaths": [
+          "content.video_url",
+          "data.content.video_url",
+          "content.image_url"
+        ]
+      }
+    },
+    {
+      "id": "apimart",
+      "label": "APImart",
+      "keyEnv": "APIMART_API_KEY",
+      "verified": false,
+      "auth": {
+        "header": "authorization",
+        "format": "Bearer {key}"
+      },
+      "submit": {
+        "urlTemplate": "https://api.apimart.ai/v1/images/generations",
+        "modelParam": "model",
+        "jobIdPaths": [
+          "data.0.task_id",
+          "data.0.id",
+          "task_id",
+          "id"
+        ],
+        "synchronousWhenNoJobId": true,
+        "outputUrlPaths": [
+          "data.0.url"
+        ],
+        "outputBase64Paths": [
+          "data.0.b64_json"
+        ]
+      },
+      "poll": {
+        "urlTemplate": "https://api.apimart.ai/v1/images/generations/{jobId}",
+        "statusPaths": [
+          "status",
+          "data.0.status"
+        ],
+        "doneStates": [
+          "succeeded",
+          "success",
+          "completed"
+        ],
+        "failedStates": [
+          "failed",
+          "error",
+          "cancelled"
+        ],
+        "workingStates": [
+          "submitted",
+          "queued",
+          "running",
+          "processing"
+        ],
+        "errorPaths": [
+          "error.message",
+          "message"
+        ],
+        "intervalMs": 3000
+      },
+      "result": {
+        "urlTemplate": "https://api.apimart.ai/v1/images/generations/{jobId}",
+        "outputUrlPaths": [
+          "data.0.url",
+          "url"
+        ],
+        "outputBase64Paths": [
+          "data.0.b64_json"
+        ]
       }
     }
   ]

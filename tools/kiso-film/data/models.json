@@ -1056,6 +1056,19 @@
       "price": {
         "perImageUsd": 0.01
       }
+    },
+    {
+      "id": "gpt-image-2",
+      "kind": "image",
+      "label": "GPT Image 2",
+      "provider": "apimart",
+      "providerModelId": "gpt-image-2",
+      "available": true,
+      "verified": false,
+      "price": {},
+      "params": {
+        "aspectRatio": "aspect_ratio"
+      }
     }
   ]
 }

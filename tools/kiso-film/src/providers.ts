@@ -33,8 +33,19 @@ export interface ProviderRoute {
   readonly keyEnv: string
   readonly verified: boolean
   readonly auth: { readonly header: string; readonly format: string }
-  readonly submit: { readonly urlTemplate: string; readonly jobIdPaths: readonly string[] }
-  readonly poll: {
+  readonly submit: {
+    readonly urlTemplate: string
+    readonly jobIdPaths: readonly string[]
+    /** The body field the model id goes in, for a route whose URL does not
+     *  name it. Without one of the two, the provider is never told which
+     *  model to run — and answers about some default, or refuses. */
+    readonly modelParam?: string
+    /** When the answer carries no job id, the answer IS the result. */
+    readonly synchronousWhenNoJobId?: boolean
+    readonly outputUrlPaths?: readonly string[]
+    readonly outputBase64Paths?: readonly string[]
+  }
+  readonly poll?: {
     readonly urlTemplate: string
     readonly statusPaths: readonly string[]
     readonly doneStates: readonly string[]
@@ -43,7 +54,7 @@ export interface ProviderRoute {
     readonly errorPaths?: readonly string[]
     readonly intervalMs: number
   }
-  readonly result: { readonly urlTemplate: string; readonly outputUrlPaths: readonly string[] }
+  readonly result: { readonly urlTemplate: string; readonly outputUrlPaths: readonly string[]; readonly outputBase64Paths?: readonly string[] }
 }
 
 export interface ProviderTable {

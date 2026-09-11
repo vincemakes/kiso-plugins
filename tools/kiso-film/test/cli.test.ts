@@ -90,16 +90,32 @@ test('A KEY IS NEVER PRINTED — a canary in the environment reaches no output s
     // exactly the path where a debug print would sit.
     ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'seedance-2-5', '--dry-run'],
     ['image', '--prompt', 'x', '--out', '/tmp/no.png', '--model', 'flux-dev', '--dry-run'],
+    // The provider the first real call goes through, on both paths.
+    ['image', '--prompt', 'x', '--out', '/tmp/no.png', '--model', 'gpt-image-2', '--dry-run'],
+    ['image', '--prompt', 'x', '--out', '/tmp/no.png', '--model', 'gpt-image-2'],
     // And the two failure paths, because an error message is where a value
     // most often escapes.
     ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '99999', '--model', 'seedance-2-5'],
     ['video', '--prompt', 'x', '--out', '/tmp/no.mp4', '--duration', '5', '--model', 'nope']
   ]
   for (const args of commands) {
-    const r = run(args, { FAL_KEY: canary, BYTEPLUS_API_KEY: canary })
+    const r = run(args, { FAL_KEY: canary, BYTEPLUS_API_KEY: canary, APIMART_API_KEY: canary })
     assert.doesNotMatch(r.stdout, new RegExp(canary), `${args.join(' ')} printed the key to stdout`)
     assert.doesNotMatch(r.stderr, new RegExp(canary), `${args.join(' ')} printed the key to stderr`)
   }
+})
+
+test('the model the first real call uses is in the table, unverified, and has no price', () => {
+  const r = run(['models', '--json', '--kind', 'image'])
+  const parsed = JSON.parse(r.stdout) as { models: Array<{ id: string; verified: boolean; provider: string; price: Record<string, unknown> }> }
+  const m = parsed.models.find((x) => x.id === 'gpt-image-2')
+  assert.ok(m !== undefined, 'gpt-image-2 is not in the table')
+  assert.equal(m.provider, 'apimart')
+  assert.equal(m.verified, false)
+  // No source was found for its price, so it has none. `estimate` reports it
+  // as not priced rather than adding a zero, which is the whole reason a
+  // missing price is null and not 0.
+  assert.equal(m.price['perImageUsd'], undefined)
 })
 
 test('estimate prices a shot list, and says the prices are unverified', () => {

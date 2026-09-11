@@ -21,7 +21,8 @@
   ],
   "secrets": [
     "FAL_KEY",
-    "BYTEPLUS_API_KEY"
+    "BYTEPLUS_API_KEY",
+    "APIMART_API_KEY"
   ],
   "icon": "icon.svg"
 }
