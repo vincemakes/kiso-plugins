@@ -76,3 +76,18 @@ None. Both items were named in the previous record and are closed.
 - **Nothing was pushed.** No call was made.
 - **The unverified paragraph's slight over-statement** (the previous record's
   §4.3), which stays as it is until the first real call.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged.** One commit, surveyed from the main checkout at
+fd603d3: a rate column that prints the figure the table carries so three
+prices are three, the total still at two decimals because a total is what a
+person approves; both streams quiet on `EPIPE` and loud on anything else,
+proved on a fresh clone with `models | head`. The part worth the lane is the
+test that was wrong first: the rule "two prices never print the same" was
+written against the helper and stayed green through the exact defect it
+names, because a test that reimplements the formatting agrees with itself;
+it reads the printed column now, matched to `--json`, and the same probe
+takes both tests down. The sentence is kept, beside its two siblings, in the
+App's engineering §8. The executor's counts: 93 tool tests, 48 fixtures,
+`check` exit 0. Next: `kiso-film-skills-3`, then idle until the owner's call.
