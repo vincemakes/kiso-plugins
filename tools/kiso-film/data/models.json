@@ -1065,7 +1065,9 @@
       "providerModelId": "gpt-image-2",
       "available": true,
       "verified": false,
-      "price": {},
+      "price": {
+        "perImageUsd": 0.0085
+      },
       "params": {
         "aspectRatio": "aspect_ratio"
       }

@@ -105,17 +105,36 @@ test('A KEY IS NEVER PRINTED — a canary in the environment reaches no output s
   }
 })
 
-test('the model the first real call uses is in the table, unverified, and has no price', () => {
+test('the model the first real call uses is priced, and still unverified', () => {
   const r = run(['models', '--json', '--kind', 'image'])
   const parsed = JSON.parse(r.stdout) as { models: Array<{ id: string; verified: boolean; provider: string; price: Record<string, unknown> }> }
   const m = parsed.models.find((x) => x.id === 'gpt-image-2')
   assert.ok(m !== undefined, 'gpt-image-2 is not in the table')
   assert.equal(m.provider, 'apimart')
+  // The PRICE was read against the provider's own published figure, so the
+  // budget stop can be computed. The ENTRY is still unverified, because a
+  // price is one field: no source was found for this model's capabilities,
+  // resolutions or aspect ratios, and the route it is reached by has never
+  // been called. Reading one field is not reading the entry.
+  assert.equal(m.price['perImageUsd'], 0.0085)
   assert.equal(m.verified, false)
-  // No source was found for its price, so it has none. `estimate` reports it
-  // as not priced rather than adding a zero, which is the whole reason a
-  // missing price is null and not 0.
-  assert.equal(m.price['perImageUsd'], undefined)
+})
+
+test('a shot list priced with it produces a total rather than "not priced"', () => {
+  // This is what F-10 was about: the product's plan is that the graph is
+  // priced before a byte is generated and the first ask is the budget. With
+  // an empty price that ask could not be computed at all.
+  const dir = mkdtempSync(join(tmpdir(), 'kiso-film-f10-'))
+  try {
+    writeFileSync(join(dir, 'shots.json'), JSON.stringify([{ id: '1-01', duration_s: 3 }]))
+    writeFileSync(join(dir, 'film.config.json'), JSON.stringify({ imageModel: 'gpt-image-2', videoModel: 'seedance-2-5', resolution: '720p', aspectRatio: '9:16', budgetUsd: null }))
+    const r = run(['estimate', join(dir, 'shots.json'), '--dir', dir, '--json'])
+    assert.equal(r.status, 0)
+    const parsed = JSON.parse(r.stdout) as { totalUsd: number | null; unpricedCount: number; lines: Array<{ what: string; usd: number | null }> }
+    assert.ok(parsed.totalUsd !== null, 'the total is still not priced')
+    assert.equal(parsed.unpricedCount, 0)
+    assert.equal(parsed.lines.find((l) => l.what === 'first frames')?.usd, 0.0085)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
 })
 
 test('estimate prices a shot list, and says the prices are unverified', () => {
