@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { concatListFile, effectiveDurations, ffmpegArgs, hasFades, hasTrims, missingInputs, parseCut } from '../src/compose.js'
+import { concatListFile, effectiveDurations, ffmpegArgs, hasFades, hasTrims, missingInputs, parseCut, trimsThatBite } from '../src/compose.js'
 
 const work = (): string => mkdtempSync(join(tmpdir(), 'kiso-film-cut-'))
 
@@ -123,4 +123,31 @@ test('a cut with one clip and a trim still produces a filter graph', () => {
   const filter = ffmpegArgs(cut, 'out.mp4', [3])[ffmpegArgs(cut, 'out.mp4', [3]).indexOf('-filter_complex') + 1] ?? ''
   assert.match(filter, /trim=duration=2\.000/)
   assert.match(filter, /\[t0\]null\[v\]/)
+})
+
+test('A TRIM THAT DOES NOT SHORTEN IS NOT A TRIM', () => {
+  // The shot list writes trim_to_s on every row — equal to the generated
+  // length where nothing is cut — so the column is numeric and sums to the
+  // film. Taking that at face value would re-encode every film to remove
+  // nothing.
+  const same = parseCut(JSON.stringify({ clips: [{ path: 'a.mp4', trimToSeconds: 3 }, { path: 'b.mp4', trimToSeconds: 4 }] }), 'cut.json')
+  assert.equal(hasTrims(same), true, 'a trim is written on both')
+  assert.equal(trimsThatBite(same, [3, 4]), false, 'but neither shortens anything')
+
+  const real = parseCut(JSON.stringify({ clips: [{ path: 'a.mp4', trimToSeconds: 2 }, { path: 'b.mp4', trimToSeconds: 4 }] }), 'cut.json')
+  assert.equal(trimsThatBite(real, [3, 4]), true)
+})
+
+test('a generator returning a hair over the asked length is not a trim either', () => {
+  // A model asked for three seconds returns 3.003. A cut asking for 3 is not
+  // asking for a frame to be removed.
+  const cut = parseCut(JSON.stringify({ clips: [{ path: 'a.mp4', trimToSeconds: 3 }] }), 'cut.json')
+  assert.equal(trimsThatBite(cut, [3.003]), false)
+  // Half a second is a trim.
+  assert.equal(trimsThatBite(cut, [3.5]), true)
+})
+
+test('a clip whose length could not be read is not assumed to need trimming', () => {
+  const cut = parseCut(JSON.stringify({ clips: [{ path: 'a.mp4', trimToSeconds: 2 }] }), 'cut.json')
+  assert.equal(trimsThatBite(cut, [0]), false)
 })

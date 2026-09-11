@@ -64,8 +64,16 @@ BOB
 thing>. Speech: <short and clipped | formal | hesitant>.
 
 ### Places
-**The bus shelter** — <what is in it, what the light is like, what time of day
-it is whenever we return>.
+**The bus shelter** — <One paragraph a camera could be pointed at: what is in
+it, what it is made of, what the light is. Present tense, concrete, no rule
+about when we return and no word about what it means.>
+
+<Then one sentence per THING in it that a shot might hold on its own — the
+bench, the timetable panel, the broken light. Each standing alone, the way a
+character sheet's parts do, because a shot of a place quotes one of them.>
+
+> The timetable panel is behind cracked perspex, one corner lifted, with a
+> water stain across the lower third.
 
 ### Rules
 <Anything that must stay true: a season, a phone that is always broken, a
@@ -87,6 +95,14 @@ Rules that matter more than the format:
   character sheets and the shot list key off these names, exactly as written.
 - **The bible describes appearance and speech, not feelings.** It exists to be
   copied into an image prompt.
+- **A place's paragraph and its rules are two different things, and they live
+  under two different headings.** *"A strip light, one tube dead, over a
+  concrete floor with a drag mark through the dust"* is a paragraph: a camera
+  can be pointed at it. *"Whenever we return it is the same hour of the night
+  and the same one light"* is a rule: it is about continuity across scenes, and
+  it belongs under **Rules**. Pasted into a first frame it would put an
+  instruction about future scenes into a still, and the model would try to obey
+  it.
 
 ## Then
 

@@ -157,8 +157,33 @@ export function hasFades(cut: Cut): boolean {
   return cut.clips.some((c) => (c.fadeInSeconds ?? 0) > 0)
 }
 
+/** A trim was WRITTEN on some clip. Says nothing about whether it shortens
+ *  anything — see `trimsThatBite`. */
 export function hasTrims(cut: Cut): boolean {
   return cut.clips.some((c) => (c.trimToSeconds ?? 0) > 0)
+}
+
+/**
+ * A TRIM THAT DOES NOT SHORTEN IS NOT A TRIM.
+ *
+ * The shot list writes `trim_to_s` on every row — equal to the generated
+ * length where nothing is cut — so that the column is numeric and sums to the
+ * film. A cut built from it therefore declares a trim on every clip, and
+ * taking that at face value would re-encode every film ever made with this
+ * tool, to remove nothing.
+ *
+ * So a trim counts only where it is shorter than the clip actually is. The
+ * tolerance is a frame at 24fps: a generator asked for three seconds returns
+ * 3.003, and a cut asking for 3 is not asking for a trim.
+ */
+const ONE_FRAME_S = 1 / 24
+
+export function trimsThatBite(cut: Cut, durations: readonly number[]): boolean {
+  return cut.clips.some((c, i) => {
+    const trim = c.trimToSeconds ?? 0
+    const real = durations[i] ?? 0
+    return trim > 0 && real > 0 && trim < real - ONE_FRAME_S
+  })
 }
 
 /** What each clip contributes to the film: its trim where one is given, its
