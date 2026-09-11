@@ -284,3 +284,38 @@ lands on an empty price.
   `shot-prompts` writes image and motion only. The table says `nativeAudio` and
   `lipSync` are declared on video models, so that field is a note for the cut
   on some routes and a missed capability on others.
+
+## 4. Verdict (leader, 2026-09-11)
+
+**Approved and merged, as the first execution of the skills — the record
+is the deliverable and the example is its evidence.** One commit, rebased
+onto main, surveyed from the main checkout: six files under the plugin's
+`examples/second-key/` and this record; the validator accepts the directory
+untouched; 17 shots in 5 scenes at 60 seconds, 34 prompts, no provider
+called. I read the brief, the shot list and ten of the seventeen prompts:
+they are shootable — one lens, one light, one movement per shot, the camera
+words from the reference verbatim, the clip prose saying what moves and
+what does not, the appearance paragraph byte-identical across its pastes
+because a script lifted it rather than a hand retyping it, and the skills'
+own mechanical rules run as checks afterwards, which is how three of the
+findings surfaced. The ten findings are exact to the sentence and the
+first four are real defects in the skills' prose: a plan that cannot express
+what its last stage requires, two opposite rules for a character who cannot
+be drawn, a `dialogue` column with no speaker for the one line the episode
+ends on, and a paste rule that puts a woman's scar into a prompt for a phone
+screen and doubles the file — the one the owner will see first. Those go to
+the skills' author as `kiso-film-skills-2`, with the lighting column, the
+language line and the ceiling; the lockfile is its own one-line lane; and
+this example is re-emitted on the fixed skills by this executor, so what the
+repository shows as the sample is the chain as it stands, not as it was.
+The executor's own correction is the better half of the record: the
+first version said no model's ceiling was knowable because the tool is
+unpublished, and the table was in the tree the whole time — read off the
+artifact, the worry inverts: seventeen of eighteen video models reach six
+seconds and sixteen cannot go below three, so the five two-second inserts
+the plugin's own guidance asks for are the shots almost nothing can make
+(F-9, to the skills fix: the floor, and a cut that trims); and the one
+image model the owner has authorised carries no capabilities and no price
+(F-10, to the apimart follow-up). Taking a document's claim about an
+artifact instead of opening the artifact is the error the week has been
+about, named here by the one who made it, which is how it stops.
