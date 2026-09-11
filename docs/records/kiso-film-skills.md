@@ -199,7 +199,7 @@ genre skill and `film-study`, with one cinematography reference the shot
 skills cite by its exact words; three offers on the writing chain, each
 `from` and `makes` inside the host's renderer words. I read `brief`,
 `shot-list`, `drama` and the reference whole: they are ours — the stages are
-reelfo's map, the words are not — and they are written the way this App's
+the closed reference's map, the words are not — and they are written the way this App's
 skills are written: plan the graph first, ask once and together, mechanical
 facts, `from` lists what was copied and nothing merely opened, withdraw
 rather than leave an outline. The two things read out of the host before
