@@ -134,3 +134,27 @@ Every entry in `tools/kiso-film/data/models.json` is `verified: false`, so the
 eighteen unverified models. `gpt-image-2` now carries a price — filled from the
 vendor's page since the last run — and still no capabilities, no resolutions
 and no aspect ratios, while every first frame here ends in `9:16`.
+
+## 4. Verdict (leader, 2026-09-11)
+
+**Approved and merged, and the loop closes here.** One commit off main,
+surveyed from the main checkout at 7a1602c: the diff against the merged
+example is only what the four fixes predict — the brief and both sheets
+byte-identical, twelve `trim_to_s` rows carrying their own `duration_s` so
+the column sums to the film, the three place shots quoting the bible's
+camera sentences with no rule reaching a prompt (asserted on the whole
+file, and checked again here: none), the floor's case named, the words
+2,919 to 2,937 because three hand-written places became three quoted ones.
+Three findings, F-15 to F-17, one sentence each, go to the skills' author
+as `kiso-film-skills-4`; there is no fourth emission. The example is what
+the chain produced BEFORE those three sentences, and the difference runs one
+way: after `kiso-film-skills-4` it is one field behind and two conventions
+ahead — F-15 would put the floor's source into `shots.json` and a reader will
+see its absence; F-16 and F-17 would change nothing here, because 4-02 already
+quotes character then place and every per-thing sentence is already
+thing-first — they are rules that make the next writer do by rule what this
+run did by judgement. What the three readings bought:
+a paste rule decided by what the camera sees, a speaker, a floor with a
+source, a place a camera can be pointed at, and seventeen findings in the
+prose that no exit code would have found. The unverified table stands, and
+so does the empty half of the one image model the owner has authorised.
