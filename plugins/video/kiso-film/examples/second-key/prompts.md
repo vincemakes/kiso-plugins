@@ -5,7 +5,7 @@
 **First frame**
 
 ```
-A brass-numbered flat door, 11B, on a concrete landing at night. A key stands in the lock from the outside, and a small orange paper tag hangs from its bow. Extreme-close framing on the lock and the tag, camera at eye level. Lit from above by one fluorescent strip light, cool practical light, hard edge on the brass and a long shadow under the tag. Shallow depth of field, the door's grain soft behind. Photographic, 35mm lens, 9:16.
+The door of 11B is a flush grey fire door with a brass numeral 11B at eye height and a brass cylinder lock below it. A key stands in the lock from the outside, and a small orange paper tag hangs from its bow. Extreme-close framing on the lock and the tag, camera at eye level. Lit from above by one fluorescent strip light, cool practical light, hard edge on the brass and a long shadow under the tag. Shallow depth of field, the door's grain soft behind. Photographic, 35mm lens, 9:16.
 ```
 
 **Clip**
@@ -173,7 +173,7 @@ The hand turns the key a quarter turn. The door moves inward two inches and stop
 **First frame**
 
 ```
-Ro Mercer is a woman of about thirty-eight, medium height and squarely built, with straight dark-brown hair cut to the jaw and pushed behind one ear. She has a broad forehead, heavy eyebrows, and a small white scar through the left eyebrow. She wears a navy work jacket with a horizontal reflective strip across the back and a locksmith's shop name stitched in white thread on the left chest, a plain grey T-shirt beneath it, and dark canvas work trousers with a flat steel tape measure clipped at the right hip. A carabiner on her belt loop carries a ring of about a dozen keys with small orange paper tags. She stands small at the left edge of frame in the doorway of an empty flat at night, a phone torch raised in one hand. The room is bare floorboards, no furniture, no curtains, new plaster, with one long drag mark through the dust running away from camera. Wide framing, camera at eye level. The torch in her hand is the only source in the room and the landing light is behind her; the corners are unlit. Photographic, 24mm lens, 9:16.
+Ro Mercer is a woman of about thirty-eight, medium height and squarely built, with straight dark-brown hair cut to the jaw and pushed behind one ear. She has a broad forehead, heavy eyebrows, and a small white scar through the left eyebrow. She wears a navy work jacket with a horizontal reflective strip across the back and a locksmith's shop name stitched in white thread on the left chest, a plain grey T-shirt beneath it, and dark canvas work trousers with a flat steel tape measure clipped at the right hip. A carabiner on her belt loop carries a ring of about a dozen keys with small orange paper tags. An empty flat: bare floorboards with a film of dust, no furniture, no curtains, new plaster on every wall. A short hall runs off the main room into darkness. One long drag mark crosses the dust from the door toward the far wall. She stands small at the left edge of frame in the doorway with a phone torch raised. Wide framing, camera at eye level. The torch in her hand is the only source in the room and the landing light is behind her; the corners are unlit. Photographic, 24mm lens, 9:16.
 ```
 
 **Clip**
@@ -187,7 +187,7 @@ She takes one step into the room and the torch beam moves with her. The camera m
 **First frame**
 
 ```
-The far wall of an empty flat at night, covered corner to corner in small steel hooks. A key hangs on every hook and a small orange paper tag hangs from every key. Medium framing on a section of the wall, camera at eye level. A single hard torch beam rakes the wall from frame left, the torch itself out of frame, and the rest of the room is shadow; the hooks throw short shadows upward. Photographic, 35mm lens, 9:16.
+The far wall carries small steel hooks from corner to corner, a key hanging on every hook and a small orange paper tag on every key. Medium framing on a section of that wall, camera at eye level. A single hard torch beam rakes it from frame left, the torch itself out of frame, and the rest of the room is shadow; the hooks throw short shadows upward. Photographic, 35mm lens, 9:16.
 ```
 
 **Clip**
