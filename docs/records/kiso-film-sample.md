@@ -261,7 +261,7 @@ kind: image · verified: false · available: true
 capabilities: (none) · resolutions: (none) · aspectRatios: (none) · price: {}
 ```
 
-The other four image models each carry a price key; this one carries none.
+The other four image models each carry a price key; this one carries none. *(Narrowed at d99833c, `kiso-film-apimart-2`: the price is filled from the vendor's own page, $0.0085; the capabilities, resolutions and aspect ratios are still empty and the entry stays `verified: false`.)*
 **Every first-frame prompt here ends in `9:16`**, as `shot-prompts` requires,
 and there is nothing in the table to say whether this model accepts an aspect
 ratio at all, or what the call costs. The product doc's plan is that the
