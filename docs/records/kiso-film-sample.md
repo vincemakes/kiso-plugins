@@ -319,3 +319,8 @@ image model the owner has authorised carries no capabilities and no price
 (F-10, to the apimart follow-up). Taking a document's claim about an
 artifact instead of opening the artifact is the error the week has been
 about, named here by the one who made it, which is how it stops.
+
+*The merge commit's subject (4eab708) says "eight findings"; the record says
+ten and the record is right — the subject was written before the correction
+that added F-9 and F-10 and not carried sideways. Noted here rather than
+rewritten, for the reader who trusts a subject over a record.*
