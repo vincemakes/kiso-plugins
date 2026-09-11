@@ -128,3 +128,21 @@ None, and the App was not touched.
 - **The route's endpoint and parameters.** Unchanged and unverified; the
   provider's technical documentation was not reachable from its index.
 - **The three ruling points.** Each is real and none is this lane.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged.** One commit, one field, surveyed from the main
+checkout at f69b5e8: `gpt-image-2` gains a price with the best sourcing in
+the table — the vendor's own page and a structured catalogue agreeing, a
+third figure with a tilde in a sentence rejected for the right reason — and
+nothing else, because "native 4K" and "the 1k variant" answer different
+questions and what one client sends is not what a model accepts. The entry
+stays `verified: false`, and the reasoning is the ruling: an entry is not a
+field, and a flag moved on one field would say the whole was checked. The
+test that had to change is the finding kept — a priced field did not make a
+checked entry — beside the test F-10 asked for, a shot list priced with this
+model giving a total. The executor's counts: 88 tool tests, 48 fixtures,
+`check` exit 0 on a fresh clone, no call made. §4: the rounding that shows
+three prices as one and the `EPIPE` crash under a closed pipe are a two-item
+lane now, before the owner runs `models`; the unverified paragraph stays as
+it is until the first real call, for the reason given.
