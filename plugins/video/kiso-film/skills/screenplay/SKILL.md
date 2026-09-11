@@ -75,6 +75,16 @@ character sheet's parts do, because a shot of a place quotes one of them.>
 > The timetable panel is behind cracked perspex, one corner lifted, with a
 > water stain across the lower third.
 
+**Each sentence begins with the thing it is about**, exactly as a character
+sheet's part sentences do, and for the same reason: a shot that holds one thing
+is answered by finding the sentence whose opening names it. Reordered, it is
+the same prose and no longer addressable —
+
+> Behind cracked perspex, one corner lifted, with a water stain across the
+> lower third, is the timetable panel.
+
+— because nothing at its front says what it is about.
+
 ### Rules
 <Anything that must stay true: a season, a phone that is always broken, a
 character who is never seen standing up.>

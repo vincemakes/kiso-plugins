@@ -42,6 +42,16 @@ invent.>
 > Her hands are broad and short-nailed, with a dark line of graphite under the
 > right thumbnail.
 
+**Each sentence begins with the thing it is about.** That is what makes it
+findable: a shot of a hand is answered by reading down the openings until one
+says *hands*. The same sentence written the other way round is equally good
+prose and no longer addressable —
+
+> Broad and short-nailed, with a dark line of graphite under the right
+> thumbnail, are her hands.
+
+— because nothing at its front says which part it describes.
+
 ## Wardrobe
 - **Default.** <what she wears in most scenes>
 - **Scene <n>.** <only where it changes, and why>

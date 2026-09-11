@@ -126,9 +126,29 @@ the keys, and a row missing one leaves a hole a reader has to interpret.
   is not there when somebody is making a film — and the difference is invisible
   from inside this sentence, which is why it is spelled out.
 
-  Whichever case you are in, **say which** in the line you write about the
-  floor. A reader who knows the number came from a table can check it; a reader
-  who knows it came from the person cannot, and should not try.
+  Whichever case you are in, **say which — and say it in the shot list's own
+  `facts`**, not only in the thread:
+
+  ```
+  facts=["17 shots", "5 scenes", "54s total", "floor 3s (models.json)"]
+  ```
+
+  The thread is not an artifact. A person opening `shots.json` in six weeks,
+  or the cut reading `trim_to_s` out of it, sees rows generated at three
+  seconds and nothing about where three came from — and `trim_to_s` is only
+  meaningful given the floor it was chosen against. A sentence said once in a
+  conversation does not travel with the file; a fact does.
+
+  Say it as `floor <n>s (<where>)`: `(models.json)` for the table,
+  `(kiso-film models)` for the command, `(asked)` for the person, `(unknown)`
+  when nobody could say. A reader who knows the number came from a table can
+  check it; a reader who knows it came from the person cannot, and should not
+  try.
+
+  **One floor, one fact.** A film generates on one video model, so this is one
+  decision about the whole list rather than a property of each row — which is
+  why it is a fact and not a column. If a list ever really is generated on two
+  models, that is the day for a column, and the day to say so.
 - **`blocking` is what a camera sees.** Where people are and what they do.
   Not what they feel.
 - **`dialogue` is the line as it is spoken**, or an empty string. Do not
@@ -147,7 +167,7 @@ the keys, and a row missing one leaves a hole a reader has to interpret.
 
 ```
 emit_artifact(path="shots.json", type="table",
-              facts=["<n> shots", "<n> scenes", "<total>s total"],
+              facts=["<n> shots", "<n> scenes", "<total>s total", "floor <n>s (<where>)"],
               from=["screenplay.md"])
 ```
 
