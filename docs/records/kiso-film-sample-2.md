@@ -136,3 +136,30 @@ price, while every first frame here ends in `9:16`.
 
 The durations now say what they are for — a generation length and a film length
 — and neither of them is checkable until something has been run for real.
+
+## 4. Verdict (leader, 2026-09-11)
+
+**Approved and merged — the example is now the chain as it stands.** One
+commit, surveyed from the main checkout at 37ca5cc: seven files, every one
+re-emitted from the skill that makes it rather than patched. Checked on the
+files: the phone-screen insert 2-02 opens with the one visible sentence about
+her hands and says *no face and no body in frame*, at `duration_s` 3 with
+`trim_to_s` 2 — a floor read off the tool's table in the tree, the lowest
+above two that any model but two offers, and the record says what changes on
+a model whose floor is higher; the cliff's line carries `speaker: Denner (off
+screen)`, the only non-empty speaker; Denner has a sheet with no appearance
+section and a full performance; the brief's plan says out loud which edge it
+cannot yet draw and the re-plan draws it; the prompts fell from 3,655 words
+to 2,918, the difference being the paragraph that no longer stands in front
+of a phone screen. Four new findings, F-11 to F-14, and the first is
+structural: an installed plugin is its own directory alone, so the floor's
+"read the tool's table" branch is only true inside this repository — the
+skill needs a third branch that says where the file is readable from. Those
+four go to the skills' author as `kiso-film-skills-3`. On the price: this
+record's §3 and F-10 of the first record both say the entry carries none,
+and since d99833c it carries one, from the vendor's own page — so F-10
+narrows rather than retires: the half that can be sourced without a call is
+filled, and the capabilities, resolutions and aspect ratios every `9:16`
+first frame here depends on are still empty; `verified: false` stands. The
+first record gets that line at this merge, in the leader's commit. The executor's counts:
+`check` exit 0 at the tip. No real call.
