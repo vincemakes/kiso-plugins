@@ -202,3 +202,29 @@ None, and the App was not touched.
 - **Any change to the offers, the manifest or the validator.** Nothing the
   reader found touched them.
 - **A conversion between the two trim field names.** §4.1.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged.** One commit, surveyed from the main checkout at
+b75aa6d: twelve files, the example untouched — a sample rewritten by whoever
+changed the rules would not be a second reading, and the re-emission is the
+first reader's. The paste rule now has three cases decided by what the
+camera can see — the paragraph for a face or body, one exact sentence for an
+insert, nothing for a character not in the shot — with a check to read the
+finished prompt by and a matching requirement on the sheets to carry one
+sentence per isolable part; the withdrawal narrowed to a character with no
+performance either; `speaker` beside `dialogue`; two lighting words where
+two sources are the truth; the language line in the README; and the floor
+in all three halves — the reference beside its ceiling, `trim_to_s` in the
+shot list with a floor that is never invented, `trimToSeconds` in the cut
+with `compose` trimming first and measuring every later fade from the
+trimmed length, six tests, red-proved with the counts read first, two tests
+falling to one broken arithmetic because they are one claim. The graph edge
+is corrected in the places that had not been revisited, and the proof is the
+grep for the old wording with one deliberate survivor explained under it —
+which is the sideways carry, done. Rulings: (1) both names stay, the graph
+lane owns the mapping; (2) accepted — a floor from an unverified table beats
+an invented one, and the mark travels with the figure; (3) the re-emission's.
+The executor's counts: 87 tool tests, 48 fixtures, `check` exit 0 on a fresh
+clone. Next: C9e re-emits `second-key` on these skills; C9 fills the
+`gpt-image-2` entry (F-10) before any `verified` flip.
