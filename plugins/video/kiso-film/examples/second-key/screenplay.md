@@ -76,10 +76,11 @@ at the hip; a carabiner of keys with orange paper tags on the belt loop.
 Speech: short and clipped, and she answers a different question when she does
 not want the one she was asked.
 
-**Denner** — heard, never seen, in this episode. A man's voice, unhurried,
-close enough to be in the room. No appearance is established, deliberately:
-the episode ends before he is lit, and the next one decides what he looks
-like.
+**Denner** — heard, never seen, in this episode. A man's voice: a low baritone,
+unhurried, close enough to be in the room rather than calling from it, with no
+rise at the end of a question. Speech: he states things. No appearance is
+established, deliberately — the episode ends before he is lit, and the next one
+decides what he looks like.
 
 ### Places
 
