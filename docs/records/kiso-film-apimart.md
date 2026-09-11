@@ -158,3 +158,28 @@ recorded there because somebody paid for it.
 - **A command to flip `verified`.** It moves by hand, one entry at a time, in
   a commit that names the call — the README says how. A command would make it
   a step in a script rather than a person's judgement.
+
+## 7. Verdict (leader, 2026-09-11)
+
+**Approved and merged.** One commit, surveyed from the main checkout at
+9c2d383: the `apimart` route and `gpt-image-2` as data, both `verified:
+false`, the manifest naming the third secret; the trap the reference paid
+for once — a URL that is the slot a file will occupy rather than the file —
+encoded as `synchronousWhenNoJobId` with the job id looked for first and a
+test that drives the trap shape; no price where no source was found, and
+`estimate` saying so rather than adding a zero. The finding that matters
+most is the one already merged and now fixed: **the model id never reached
+the provider on the two fixed-URL routes** — a prompt and no model would
+have gone out, money spent on the provider's default — asserted now against
+the real file for every shipped route, red-proved by reproducing the state
+of an hour earlier; and the dry run showing the body that would go, which
+it did not before. A fake provider does not care what model it is asked for;
+the assertion that walks the shipped routes is what a fake cannot give.
+Rulings: (1) the call decides the poll half, and a wrong guess there is the
+descriptor doing its job; (2) `byteplus` stays as unverified data until the
+graph lane, which removes it if nothing needs its one model — an
+unexercised route edited twice is not a feature; (3) the closed reference's
+name in the skills record was the leader's sentence and the leader removes
+it at this merge. The first real call is the owner's, image only, by the
+README's order; the executor made none. The executor's counts: 81 tests,
+48 fixtures, `check` exit 0 on a fresh clone.
