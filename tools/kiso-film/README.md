@@ -66,6 +66,87 @@ way, validates perfectly. So `kiso-film models` marks every unverified row
 with `?`, and `estimate` prints a paragraph saying the total is an order of
 magnitude rather than a quote.
 
+## The first real call
+
+Nothing in this repository has ever called a provider. Every model and every
+route is marked unverified because of that, and the only thing that changes it
+is a real call. This is that call: **one image, through APImart, with
+`gpt-image-2`.** No video, and no other model.
+
+**You hold the key. Nothing here should ever see it.**
+
+**1. Build the tool.**
+
+```bash
+npm ci --prefix tools/kiso-film && npm run build --prefix tools/kiso-film
+```
+
+**2. Put your key in your own shell.** Type it; do not paste it into a file,
+and do not put it in the command you are about to run — a key in a command
+line is a key in your shell history.
+
+```bash
+export APIMART_API_KEY=…
+```
+
+**3. Check the tool can see it.**
+
+```bash
+node tools/kiso-film/build/src/cli.js models --kind image
+```
+
+`gpt-image-2` should have lost its `·`, which is the mark for "no key for this
+provider". It keeps its `?`: that means unverified, and it is still true —
+a key being present says nothing about whether the route is right.
+
+**4. Make the call.**
+
+```bash
+node tools/kiso-film/build/src/cli.js image \
+  --model gpt-image-2 \
+  --prompt "a bus shelter at night, rain, one working streetlamp" \
+  --out /tmp/first.png
+```
+
+Before it sends, it will print:
+
+> the route to APImart is unverified — it has not been checked against a real
+> call. If this fails oddly, `data/providers.json` is the first place to look.
+
+That line is what this whole arrangement is for. It is accurate until the
+moment this call succeeds.
+
+**If it works**, `/tmp/first.png` is an image and the path is printed.
+
+**If it fails**, the route is the first place to look, and the message will
+usually say so itself. The likely ones:
+
+| what you see | what it means |
+|---|---|
+| *does not know where it put the file* | the answer came back in a shape `data/providers.json` does not name. The message lists the paths it tried; the answer's real shape is one line away |
+| *answered with text where a file should be* | the URL pointed at something that is not the image — often an error body |
+| *An empty file is not a result* | the URL answered, with nothing. Usually a slot the file has not reached yet |
+| *reported the state "…", which this route does not know* | the job is being polled and its state word is not in the route's list |
+
+All four are edits to `data/providers.json`, not to code. That is deliberate:
+the part most likely to be wrong is the part that is data.
+
+**5. Afterwards, flip `verified` by hand.**
+
+There is no command for this, on purpose. `verified` moves **one entry at a
+time**, and only on one of two grounds: a real call that worked, or a person
+reading that entry against the provider's own documentation.
+
+- `data/providers.json` — set `"verified": true` on the `apimart` route.
+- `data/models.json` — set `"verified": true` on `gpt-image-2`.
+
+Commit them together, and **name the call in the message**: what was asked
+for, what came back, and what it cost. A `verified` flag whose commit does not
+say which call earned it is a flag nobody can check later.
+
+Nothing else becomes verified. `fal`, `byteplus`, and the other twenty-two
+entries have still never been called.
+
 ## Keys
 
 Keys arrive in the environment and nowhere else — the host injects a declared
@@ -91,7 +172,7 @@ exit 3 and a sentence naming what to install. Nothing is ever fetched.
 
 ```bash
 npm install
-npm test          # builds, then runs the suite — 71 tests, no real call
+npm test          # builds, then runs the suite — 77 tests, no real call
 npm pack          # the tarball, which is what `npm i -g` installs
 ```
 

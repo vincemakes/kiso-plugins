@@ -26,6 +26,17 @@ export interface FakeOptions {
   readonly fileBody?: string
   readonly omitJobId?: boolean
   readonly omitOutputUrl?: boolean
+  /** Answer the POST with the result itself, the way an OpenAI-style images
+   *  endpoint does: `{data:[{url}]}` and no job id. */
+  readonly synchronous?: boolean
+  /** …or with the bytes inline. */
+  readonly synchronousBase64?: string
+  /** THE TRAP. A URL *and* a job id: the URL is the slot the file will
+   *  occupy, and it is a 404 until the job finishes. Taking it is the
+   *  incident this path exists to prevent. */
+  readonly urlAndJobId?: boolean
+  /** What the "not there yet" URL answers with. */
+  readonly slotBody?: string
 }
 
 export interface Fake {
@@ -54,8 +65,17 @@ export async function startFake(options: FakeOptions = {}): Promise<Fake> {
         res.end(options.fileBody ?? 'the finished file')
         return
       }
+      if (url.endsWith('/not-there-yet.png')) {
+        // The slot. It answers, and what it answers with is not a file.
+        res.writeHead(200, { 'content-type': 'application/json' })
+        res.end(options.slotBody ?? '')
+        return
+      }
       if (req.method === 'POST') {
         if (options.submitStatus !== undefined && options.submitStatus >= 400) { json(options.submitStatus, { error: 'no' }); return }
+        if (options.synchronousBase64 !== undefined) { json(200, { data: [{ b64_json: Buffer.from(options.synchronousBase64).toString('base64') }] }); return }
+        if (options.urlAndJobId === true) { json(200, { data: [{ url: `http://127.0.0.1:${port}/not-there-yet.png`, task_id: 'job-1', status: 'submitted' }] }); return }
+        if (options.synchronous === true) { json(200, { data: [{ url: `http://127.0.0.1:${port}/file.bin` }] }); return }
         if (options.omitJobId === true) { json(200, { nothing: 'useful' }); return }
         json(200, { [options.jobIdField ?? 'request_id']: 'job-1' })
         return
@@ -99,7 +119,7 @@ export function writeFakeRoutes(dir: string, port: number, overrides: Record<str
       errorPaths: ['error'],
       intervalMs: 100
     },
-    result: { urlTemplate: `${base}/{providerModelId}/requests/{jobId}`, outputUrlPaths: ['video.url'] },
+    result: { urlTemplate: `${base}/{providerModelId}/requests/{jobId}`, outputUrlPaths: ['video.url', 'data.0.url'], outputBase64Paths: ['data.0.b64_json'] },
     ...overrides
   }
   writeFileSync(`${dir}/providers.json`, JSON.stringify({ schemaVersion: 1, providers: [provider] }, null, 2))

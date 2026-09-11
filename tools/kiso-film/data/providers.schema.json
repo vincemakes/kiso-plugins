@@ -1,63 +1,197 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "kiso-film provider routes",
-  "description": "How each provider is talked to: where a job is submitted, where it is polled, what its states are called, and where the finished file's URL sits. Written as DATA because it is the part most likely to be wrong and the part a person should be able to correct without touching code. No route is verified until a real call has been made against it.",
+  "description": "How each provider is talked to: where a job is submitted, whether the answer is the result or a job to poll, what its states are called, and where the finished file sits \u2014 as a URL or as base64. Written as DATA because it is the part most likely to be wrong and the part a person should be able to correct without touching code. No route is verified until a real call has been made against it.",
   "type": "object",
-  "required": ["schemaVersion", "providers"],
+  "required": [
+    "schemaVersion",
+    "providers"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schemaVersion": { "type": "integer", "minimum": 1 },
-    "providers": { "type": "array", "items": { "$ref": "#/definitions/provider" } }
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/provider"
+      }
+    }
   },
   "definitions": {
     "provider": {
       "type": "object",
-      "required": ["id", "label", "keyEnv", "verified", "auth", "submit", "poll", "result"],
+      "required": [
+        "id",
+        "label",
+        "keyEnv",
+        "verified",
+        "auth",
+        "submit",
+        "result"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-        "label": { "type": "string", "minLength": 1 },
-        "keyEnv": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
-        "verified": { "type": "boolean" },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "keyEnv": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "verified": {
+          "type": "boolean"
+        },
         "auth": {
           "type": "object",
-          "required": ["header", "format"],
+          "required": [
+            "header",
+            "format"
+          ],
           "additionalProperties": false,
           "properties": {
-            "header": { "type": "string", "minLength": 1 },
-            "format": { "type": "string", "pattern": "\\{key\\}" }
+            "header": {
+              "type": "string",
+              "minLength": 1
+            },
+            "format": {
+              "type": "string",
+              "pattern": "\\{key\\}"
+            }
           }
         },
         "submit": {
           "type": "object",
-          "required": ["urlTemplate", "jobIdPaths"],
+          "required": [
+            "urlTemplate",
+            "jobIdPaths"
+          ],
           "additionalProperties": false,
           "properties": {
-            "urlTemplate": { "type": "string", "minLength": 1 },
-            "jobIdPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            "urlTemplate": {
+              "type": "string",
+              "minLength": 1
+            },
+            "jobIdPaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "outputUrlPaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "outputBase64Paths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "synchronousWhenNoJobId": {
+              "type": "boolean"
+            },
+            "modelParam": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The body field the model id goes in, for a route whose URL does not name it. A route must put the model id in ONE of the two \u2014 the URL template or this field \u2014 or the provider is never told which model to run."
+            }
           }
         },
         "poll": {
           "type": "object",
-          "required": ["urlTemplate", "statusPaths", "doneStates", "failedStates", "intervalMs"],
+          "required": [
+            "urlTemplate",
+            "statusPaths",
+            "doneStates",
+            "failedStates",
+            "intervalMs"
+          ],
           "additionalProperties": false,
           "properties": {
-            "urlTemplate": { "type": "string", "minLength": 1 },
-            "statusPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "doneStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "failedStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "workingStates": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "errorPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-            "intervalMs": { "type": "integer", "minimum": 100 }
+            "urlTemplate": {
+              "type": "string",
+              "minLength": 1
+            },
+            "statusPaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "doneStates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "failedStates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "workingStates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "errorPaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "intervalMs": {
+              "type": "integer",
+              "minimum": 100
+            }
           }
         },
         "result": {
           "type": "object",
-          "required": ["urlTemplate", "outputUrlPaths"],
+          "required": [
+            "urlTemplate",
+            "outputUrlPaths"
+          ],
           "additionalProperties": false,
           "properties": {
-            "urlTemplate": { "type": "string", "minLength": 1 },
-            "outputUrlPaths": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+            "urlTemplate": {
+              "type": "string",
+              "minLength": 1
+            },
+            "outputUrlPaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "outputBase64Paths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         }
       }
