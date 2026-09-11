@@ -32,8 +32,9 @@ The generations are separate calls with no memory of each other, so the only
 thing holding a face the same across twelve shots is that the same words were
 sent. That is why the words are copied rather than summarised.
 
-**What is copied depends on what the camera can see.** There are four cases
-and they are not a matter of taste:
+**What is copied depends on what the camera can see.** There are four cases,
+they are not a matter of taste, and **they combine** — a wide of a room with a
+figure in it is the most ordinary shot in film, and it is two of them:
 
 **1. The character's face or body is in frame.** Paste that character's
 **appearance paragraph verbatim** from their sheet. Not a summary, not "Alice
@@ -68,6 +69,12 @@ paragraph a camera could be pointed at, and rules about continuity across
 scenes — *"whenever we return it is the same hour of the night"*. The second is
 written for a reader. Pasted into a first frame it puts an instruction about
 future scenes into a still, and the model will try to satisfy it.
+
+**When a shot is more than one case, quote both — the character first, then the
+place.** A model reads the opening of a prompt as its subject, and the place is
+the setting a character is put in rather than the thing the shot is about. The
+order is fixed for the same reason the lighting pair's is: two prompts that say
+the same thing in two orders are two different requests.
 
 If the place has a rule and no paragraph, **describe it from the screenplay's
 own concrete details** — the things its action lines name — and say in one line
