@@ -27,9 +27,15 @@ plan_artifacts(nodes=[
 A plan is free, and a person who can see the shape asks better questions
 about it. Characters and per-shot files are not in this plan: their count is
 not known yet, and a plan that names `characters/alice.md` before anyone is
-called Alice leaves an outline nobody will ever fill. Re-plan when the names
-exist — the newest plan replaces the previous one and anything already
-emitted stays.
+called Alice leaves an outline nobody will ever fill.
+
+**This plan is therefore incomplete in one edge, and `screenplay` completes
+it.** `prompts.md` is derived from the shot list *and from every character
+sheet it quotes* — `shot-prompts` says so and emits that way. It cannot be
+drawn here because the names do not exist yet, so the re-plan in `screenplay`
+is not a tidy-up: it is where this edge arrives. Say so if the person asks what
+the graph will become; a canvas whose character sheets lead nowhere is a canvas
+that is about to change.
 
 ## Ask once, together
 

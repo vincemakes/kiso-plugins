@@ -31,6 +31,17 @@ face, the clothing that does not change between scenes, and one distinctive
 thing. This paragraph is copied verbatim into image prompts — write it so that
 it can be.>
 
+<Then ONE SENTENCE PER PART a camera can isolate on its own: the hands, the
+jacket, the shoes — whatever this character's shots will hold in close-up. Each
+must stand alone, because an insert quotes exactly one of them and nothing
+else. `shot-prompts` pastes the sentence about the hand into a shot of a hand,
+and the whole paragraph only when the face or body is in frame; without these
+sentences it has nothing exact to quote and must either over-describe or
+invent.>
+
+> Her hands are broad and short-nailed, with a dark line of graphite under the
+> right thumbnail.
+
 ## Wardrobe
 - **Default.** <what she wears in most scenes>
 - **Scene <n>.** <only where it changes, and why>
@@ -74,10 +85,20 @@ emit_artifact(path="characters/alice.md", type="markdown",
               from=["screenplay.md"])
 ```
 
-If a character named in an earlier plan turns out not to need a sheet — a
-voice on a phone, a crowd — withdraw the promise rather than leaving an
-outline:
+**Withdraw a sheet only for a character with no performance either** — a
+crowd, a name in a line of dialogue, someone spoken about and never heard:
 
 ```
 withdraw_artifact(path="characters/<name>.md")
 ```
+
+**A voice is not that.** A character who is never seen but is heard has a
+performance, and the next scene — or the next episode — needs it to stay the
+same. Write them a sheet with no *Appearance* section, say in one line that it
+is deliberately absent and why, and fill *Performance* as fully as for anyone
+else. Same shape as the child-character rule above, for the same reason: what
+cannot be drawn is not therefore nothing.
+
+The test is not *can I draw them*. It is *will anything downstream have to be
+consistent about them* — a voice, a way of speaking, a name always said in
+full. If yes, they get a sheet.

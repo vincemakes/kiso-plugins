@@ -4,9 +4,13 @@ One sentence in, a film out — and every part of it is a thing on the canvas
 you can take hold of and change.
 
 ```
-brief.md → screenplay.md → characters/*.md
-                        → shots.json → prompts.md
+brief.md → screenplay.md → characters/*.md ─┐
+                        → shots.json ───────┴→ prompts.md
 ```
+
+The prompts descend from the shot list **and** from every character sheet they
+quote: the sheets' own words are pasted into them, so editing a sheet makes the
+prompts stale and the graph is what says so.
 
 Each stage is a separate skill reading what the last one wrote, so you can
 stop after any of them, look at what it made, edit it by hand, and carry on.
@@ -29,10 +33,23 @@ takes an idea to the point where every shot has a prompt written for it.
 | `drama` | — | nothing. A genre skill: it changes how the three above decide |
 | `film-study` | a reference clip you have | `study/<name>.json` — that clip's camera language, as a shot list |
 
+There is a worked example under
+[`examples/second-key`](examples/second-key) — a whole episode taken through
+the chain by hand.
+
 `references/cinematography.md` holds the vocabulary the shot skills use — shot
 sizes, angles, moves, lighting. It is a fixed set on purpose: the prompts are
 built from those words, and words that vary between runs produce shots that do
 not cut together.
+
+**The output is written in your language; these skills are written in English.**
+A brief you write in Japanese produces a Japanese screenplay. The recipes are
+English because they are recipes, and the only exception is the image and video
+prompts, which stay English because the models are trained that way while the
+dialogue keeps its own language. **The example under `examples/` is English
+throughout**, because this repository's language gate requires it — so the
+example shows the chain, and is the one thing in the plugin that cannot show
+that rule.
 
 ## Needs
 
