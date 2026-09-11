@@ -73,11 +73,17 @@ Two rules a generated shot in particular needs:
 | `practical` | lamps, screens, signs in the frame | a room that lights itself; the cheapest realism there is |
 | `golden` | low warm sun | endings, memory, the last good day |
 
-**Two words where two are the truth.** A phone torch in an unlit flat is
-`practical low-key`: the source is in the frame and the room is shadow, and
-choosing one of those throws away half the shot. Two is the limit — three is a
-description rather than a vocabulary. The row names the RESULT; the source
-itself belongs in the shot's blocking, where a prompt can find it and use it.
+**Two words where two are the truth, in a fixed order.** A phone torch in an
+unlit flat is `practical low-key`: the source is in the frame and the room is
+shadow, and choosing one of those throws away half the shot. Two is the limit —
+three is a description rather than a vocabulary.
+
+**The source comes first, the quality second.** `practical low-key`, never
+`low-key practical`. The two read the same to a person and differently to
+anything that groups the column by value, so one look would sit in two groups
+for no reason a viewer could see. The source itself — the torch, the strip
+light, the screen — belongs in the shot's blocking, where a prompt can find it
+and use it.
 
 ## Reaching for a shot when you know the feeling
 

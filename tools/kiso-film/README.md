@@ -169,6 +169,11 @@ the shot a film wants shortest — so the shot list asks for the floor and
 records what the cut should use, and this is where that second number is
 obeyed. A trim longer than the clip loses to the clip.
 
+**A trim that does not shorten is not a trim.** The shot list writes one on
+every row so its column is numeric and sums to the film's length, so most cuts
+declare a trim on every clip and cut nothing. Only a trim shorter than the clip
+— by more than a frame — sends the cut down the re-encoding path.
+
 A cut with fades or trims is re-encoded and needs `ffprobe` for the clips' real
 lengths; a cut with neither is joined without re-encoding.
 
@@ -197,7 +202,7 @@ exit 3 and a sentence naming what to install. Nothing is ever fetched.
 
 ```bash
 npm install
-npm test          # builds, then runs the suite — 77 tests, no real call
+npm test          # builds, then runs the suite — 96 tests, no real call
 npm pack          # the tarball, which is what `npm i -g` installs
 ```
 

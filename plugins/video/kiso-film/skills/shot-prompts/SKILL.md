@@ -32,7 +32,7 @@ The generations are separate calls with no memory of each other, so the only
 thing holding a face the same across twelve shots is that the same words were
 sent. That is why the words are copied rather than summarised.
 
-**What is copied depends on what the camera can see.** There are three cases
+**What is copied depends on what the camera can see.** There are four cases
 and they are not a matter of taste:
 
 **1. The character's face or body is in frame.** Paste that character's
@@ -57,8 +57,22 @@ picture, in every insert, in every shot list.
 their name, not their clothes, not "Alice's flat". The frame is what the prompt
 describes.
 
-The same rule applies to a place: the screenplay's continuity entry for it,
-copied — when the place is what the shot is of.
+**4. The shot is of a place.** Quote the place's **paragraph** from the
+screenplay's continuity — or, for a shot that holds one thing in it, the
+**sentence about that thing**, exactly as an insert of a hand quotes the
+sentence about hands. The cases are the same because the reason is: what is in
+frame decides what is copied.
+
+**Never quote a place's Rules.** The bible keeps two things under a place: a
+paragraph a camera could be pointed at, and rules about continuity across
+scenes — *"whenever we return it is the same hour of the night"*. The second is
+written for a reader. Pasted into a first frame it puts an instruction about
+future scenes into a still, and the model will try to satisfy it.
+
+If the place has a rule and no paragraph, **describe it from the screenplay's
+own concrete details** — the things its action lines name — and say in one line
+under the prompt that the bible has no paragraph for it. That is a note back to
+`screenplay`, not a licence to invent a room.
 
 **The sheets have to support this**, which is a requirement on `characters`
 and not on you: an appearance sheet carries one sentence per part that a camera
