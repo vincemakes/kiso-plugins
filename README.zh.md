@@ -47,12 +47,20 @@ plugins/video/kiso-film/
 
 ## 安装
 
-克隆本仓库，然后在应用里：**Settings → Integrations → Plugins → Add**，选择从
-文件夹安装，指向 `plugins/<category>/<id>`。
+应用 0.2.0 及以后：**Settings → Integrations → Plugins → Add**。本合集以
+**kiso plugins** 的名字列在那里。点 **Open** 会按分类列出其中的插件，点
+**Install** 复制你选的那一个。把本仓库的地址粘贴到输入框里，也会打开同一个列表。
 
-目前还不能用本仓库的 git 地址直接安装：应用的 git 安装会在克隆的根目录找清单，
-而一个合集的根目录没有清单。[docs/plugin-format.md](docs/plugin-format.md) 里写了
-怎样才能补上这个缺口。
+单个插件可以用地址加 `#` 后面的路径直接安装：
+
+```
+https://github.com/vincemakes/kiso-plugins#plugins/video/kiso-film
+```
+
+只有你点 **Open** 或 **Clone** 时，应用才会访问 GitHub；已安装的插件只有在你点它
+那一行的 **Check for update** 时才会变。从文件夹安装仍然可用：克隆本仓库，选择
+`plugins/<category>/<id>`。0.2.0 之前的应用只能这样装。
+[docs/plugin-format.md](docs/plugin-format.md) 写清了应用到底读什么。
 
 ## 自己写一个
 

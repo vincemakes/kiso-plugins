@@ -53,13 +53,23 @@ worth keeping was the format, the validator and the shape.
 
 ## Installing one
 
-Clone this repository, then in the app: **Settings → Integrations → Plugins →
-Add**, from a folder, and choose `plugins/<category>/<id>`.
+In the app, 0.2.0 and later: **Settings → Integrations → Plugins → Add**.
+This collection is listed there as **kiso plugins**. **Open** lists its
+plugins by category, and **Install** copies the one you choose. Pasting this
+repository's URL into the box opens the same list.
 
-Installing the repository by its git URL does not work yet: the app's git
-install expects a manifest at the root of the clone, and a collection has
-none. [docs/plugin-format.md](docs/plugin-format.md) says what would close
-that gap.
+One plugin installs straight from its URL, with its path after `#`:
+
+```
+https://github.com/vincemakes/kiso-plugins#plugins/video/kiso-film
+```
+
+The app reaches GitHub only when you press **Open** or **Clone**, and an
+installed plugin changes only when you press **Check for update** on its
+row. Installing from a folder still works: clone this repository and choose
+`plugins/<category>/<id>`. An app older than 0.2.0 installs only that way.
+[docs/plugin-format.md](docs/plugin-format.md) says exactly what the app
+reads.
 
 ## Writing one
 

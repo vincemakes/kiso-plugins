@@ -324,21 +324,30 @@ input until its manifest parses.
 
 ## Installing from this repository
 
-**A plugin here installs by copying its directory.** Clone the repository and
-point the App at `plugins/<category>/<id>` — Settings → Integrations →
-Plugins → Add, from a folder.
+**By its URL, from the App's Add panel (kiso app 0.2.0 and later).** The App
+reads this repository the way this file describes it: a plugin is a directory
+at `plugins/<category>/<id>/`, and the list is those directories. There is no
+catalog file here and none is needed — the App chose the directories over a
+root index, because an index is a second list to keep in step with them
+(the App's ADR-008 clauses 2 and 8, as amended in its round 0.2.0).
 
-**Installing this repository by its URL does not work, and that is a
-limitation of the App rather than of the layout here.** The App's git install
-clones the URL and looks for `kiso-plugin.json` at the **root** of the clone.
-A collection has no manifest at its root and cannot have one: it holds several
-plugins, and a root manifest would have to be one of them.
+- **The repository's URL** opens the list, grouped by category. The
+  first-party collection is listed by name and fetched only when a person
+  opens it. A plugin the App would refuse is still a row, with the reason.
+  **Install** copies the chosen directory from the very clone the list was
+  built from.
+- **A URL with a path**, `https://…/kiso-plugins#plugins/video/kiso-film`,
+  installs that one plugin. Each part of the path is a directory name of
+  lowercase letters, digits and dashes, and only that directory is read and
+  copied.
+- **The path and the manifest must agree.** The last directory is the `id`
+  and the one above it is the `category`; the App refuses a plugin where
+  either differs, naming both — the rule `npm run check` holds here.
+- **The App records where a plugin came from** — the URL, the path, the
+  commit and the directory's tree hash — in a file of its own, never inside
+  the plugin. **Check for update** compares that tree, so a commit that
+  touches only another plugin is not an update to this one, and nothing is
+  checked unless a person presses it.
 
-Closing that gap needs a change in the App, one of:
-
-- **a sub-path on the URL** — `https://…/kiso-plugins#plugins/video/kiso-film`,
-  resolved inside the validated temporary clone, or
-- **a root index the App reads** — a file at the repository root listing the
-  directories that are plugins, so one URL offers a choice.
-
-Neither is decided here. Until one lands, copy the directory.
+**From a folder** still works: clone the repository and point the App at
+`plugins/<category>/<id>`. An App older than 0.2.0 installs only this way.
