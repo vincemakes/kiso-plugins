@@ -139,17 +139,24 @@ somebody maintains.
 ```
 
 An array of strings, each naming a **directory** under `skills/`, never a
-path. Entries are trimmed, blanks dropped, and duplicates collapsed; an entry
-containing `/` or `\`, or equal to `.` or `..`, is refused. The array must not
-end up empty — a plugin with nothing in it installs nothing.
+path, and each an **id**: lowercase letters, digits and dashes. Entries are
+trimmed, blanks dropped, and duplicates collapsed. The array must not end up
+empty — a plugin with nothing in it installs nothing.
 
 Every named directory must contain a `SKILL.md`, and neither the directory nor
-anything in the tree may be a symbolic link (see below). A directory under
-`skills/` that the manifest does **not** name is copied and never read; the
-validator says so as a note.
+anything in the tree may be a symbolic link (see below). **A directory under
+`skills/` that the manifest does not name is refused** — by the App at
+install since its 0.2.1, and by the validator here. The App's skills come
+from kiso's skills extension, which scans every directory it is given and
+prints a broken one's name into the model's prompt, so a plugin may hold
+nothing there but the skills it names. Files beside them are ignored.
 
-A plugin's skills are namespaced by its id — `shorts-pack/transcribe` — so two
-plugins may both ship a `cut` and neither shadows the other.
+On the App's pages a plugin's skills are namespaced by its id —
+`shorts-pack/transcribe`. In the model's index they are listed by the `name`
+in their front matter, and when two enabled skills carry the same name the
+first one wins and the second is reported (kiso's rule). Name a skill for
+what it does in this plugin — `film-brief`, not `brief` — and it will not
+collide.
 
 ### `commands` — optional
 
