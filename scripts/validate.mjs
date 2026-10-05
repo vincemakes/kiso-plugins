@@ -361,6 +361,14 @@ export function validatePlugin(dir, dirName, categoryName) {
     if (skills.length !== trimmed.length) bad('STRICTER: "skills" contains the same directory twice — the App deduplicates it, so the manifest and what installs would differ')
     const escaping = skills.find((s) => s.includes('/') || s.includes('\\') || s === '.' || s === '..')
     if (escaping !== undefined) bad(`"skills" entries are directory names, not paths (got ${JSON.stringify(escaping)})`)
+    // The App's rule since its round 0.2.1 (its ADR-008 clause 2): a skill is
+    // named by an id. Its skills extension prints a broken skill's directory
+    // name into the model's prompt, so a name has to be one that cannot read
+    // as anything but a name.
+    else {
+      const notAnId = skills.find((s) => !ID_RE.test(s))
+      if (notAnId !== undefined) bad(`"skills" entries must be ids — lowercase letters, digits and dashes (got ${JSON.stringify(notAnId)})`)
+    }
     if (skills.length === 0) bad('"skills" is empty — a plugin with nothing in it installs nothing')
   }
 
@@ -471,13 +479,16 @@ export function validatePlugin(dir, dirName, categoryName) {
     offersRead += off.count
   }
 
-  // Directories under skills/ that no manifest entry names are not installed
-  // as skills. They are copied and never read, which is a surprise worth one
-  // line rather than a silent omission.
+  // A directory under skills/ that no manifest entry names is REFUSED, the
+  // App's rule since its round 0.2.1 (its ADR-008 clause 2). It was a
+  // warning while the App read only the named ones; the skills extension it
+  // adopted scans every subdirectory and prints a broken one's name into the
+  // model's prompt. Files beside the skills are ignored, as the extension
+  // ignores them.
   const skillsRoot = join(dir, 'skills')
   if (existsSync(skillsRoot)) {
     for (const d of readdirSync(skillsRoot, { withFileTypes: true })) {
-      if (d.isDirectory() && !skills.includes(d.name)) warnings.push(`skills/${d.name} is not named in "skills" — it will be copied and never read`)
+      if (d.isDirectory() && !skills.includes(d.name)) bad(`skills/${d.name} is not a skill the manifest names — a plugin's skills/ holds only the skills its "skills" lists, and the App refuses anything else`)
     }
   }
 
@@ -653,6 +664,8 @@ function selftest() {
     ['a skill entry that is a path', (g) => (g.manifest.skills = ['a/b']), 'directory names, not paths'],
     ['a duplicated skill', (g) => (g.manifest.skills = ['one', ' one ']), 'the same directory twice'],
     ['a declared skill with no SKILL.md', (g) => (g.manifest.skills = ['one', 'two']), 'skills/two/SKILL.md is missing'],
+    ['a directory in skills/ the manifest does not name', (g) => (g.files['skills/extra/SKILL.md'] = '---\nname: extra\ndescription: Not named.\n---\n'), 'is not a skill the manifest names'],
+    ['a skill named by something that is not an id', (g) => { g.manifest.skills = ['One_Skill']; g.files = { ...g.files, 'skills/One_Skill/SKILL.md': '---\nname: one\ndescription: Does one thing.\n---\n' } }, '"skills" entries must be ids'],
     ['a SKILL.md with no frontmatter', (g) => (g.files['skills/one/SKILL.md'] = '# One\n'), 'no --- frontmatter block'],
     ['a SKILL.md with no description', (g) => (g.files['skills/one/SKILL.md'] = '---\nname: one\n---\n# One\n'), 'has no "description"'],
     /*
